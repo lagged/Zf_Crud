@@ -133,7 +133,7 @@ abstract class Controller extends \Zend_Controller_Action
 
         $record = $this->obj->find($id)->toArray();
         $this->view->assign('record', $record[0]);
-        $this->render('crud/detail', null, true);
+        return $this->render('crud/detail', null, true);
     }
 
     /**
