@@ -1,0 +1,17 @@
+<h1>hello</h1>
+<table class="zebra-striped">
+<thead>
+<?php foreach ($this->cols as $column): ?>
+    <th><?php echo $column['COLUMN_NAME']; ?></th>
+<?php endforeach; ?>
+</thead>
+<tbody>
+<tr>
+<?php foreach ($this->record as $col => $val): ?>
+    <td class="data-<?php echo $col; ?>"><?php echo $val; ?></td>
+<?php endforeach; ?>
+</tr>
+</tbody>
+</table>
+
+<?php //exit;
