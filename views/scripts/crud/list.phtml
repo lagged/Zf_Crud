@@ -1,16 +1,20 @@
-<h1><?php echo $this->ui_title; ?></h1>
-<table class="zebra-striped">
-<thead>
-<tr>
+<div class="container">
+    <div class="page-header">
+        <h1><?php echo $this->ui_title; ?></h1>
+    </div>
+
+    <table class="zebra-striped">
+    <thead>
+        <tr>
 <?php foreach ($this->cols as $column): ?>
-    <th><?php echo $column['COLUMN_NAME']; ?></th>
+            <th><?php echo $column['COLUMN_NAME']; ?></th>
 <?php endforeach; ?>
-    <th>actions</th>
-</tr>
-</thead>
-<tbody>
+            <th>actions</th>
+        </tr>
+    </thead>
+    <tbody>
 <?php foreach ($this->data as $row): ?>
-<tr>
+        <tr>
 <?php $_primary = null; ?>
 <?php foreach ($row as $col => $val): ?>
     <?php
@@ -18,14 +22,14 @@
         $_primary = $val;
     }
     ?>
-    <td class="data-<?php echo $col; ?>"><?php echo $val; ?></td>
+            <td class="data-<?php echo $col; ?>"><?php echo $val; ?></td>
 <?php endforeach; ?>
-    <td>
-        <a href="<?php echo $this->url(array('action' => 'read', $this->primary[0] => $_primary)); ?>">Detail</a>
-    </td>
-</tr>
+            <td>
+                <a href="<?php echo $this->url(array('action' => 'read', $this->primary[0] => $_primary)); ?>">Detail</a>
+            </td>
+        </tr>
 <?php endforeach; ?>
-</tbody>
-</table>
+    </tbody>
+    </table>
 
-<?php //exit;
+</div>

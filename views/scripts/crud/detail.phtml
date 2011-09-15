@@ -1,15 +1,26 @@
-<h1><?php echo $this->ui_title; ?> &gt; Detail</h1>
-<table class="zebra-striped">
-<thead>
-    <th>Name</th>
-    <th>Value</th>
-</thead>
-<tbody>
+<div class="container">
+    <div class="page-header">
+        <h1><?php echo $this->ui_title; ?> &raquo; Detail</h1>
+    </div>
+    <ul class="pills">
+        <li><a href="<?php echo $this->url(array('action' => 'list')); ?>">Show all</a></li>
+        <li class="active"><a href="#">Detail</a></li>
+        <li><a href="<?php echo $this->url(array('action' => 'edit', $this->primary[0] => $this->pkValue)); ?>">Edit</a></li>
+        <li><a href="#">Delete</a></li>
+    </ul>
+
+    <table class="zebra-striped">
+    <thead>
+        <th>Name</th>
+        <th>Value</th>
+    </thead>
+    <tbody>
 <?php foreach ($this->record as $col => $val): ?>
-<tr>
-    <th scope="row"><?php echo $col; ?></th>
-    <td><?php echo $val; ?></td>
-</tr>
+        <tr>
+            <th scope="row"><?php echo $col; ?></th>
+            <td><?php echo $val; ?></td>
+        </tr>
 <?php endforeach; ?>
-</tbody>
-</table>
+    </tbody>
+    </table>
+</div>
