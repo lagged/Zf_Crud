@@ -43,6 +43,12 @@ abstract class Controller extends \Zend_Controller_Action
     protected $obj;
 
     /**
+     * @var int $count Maximum count when fetching all rows
+     * @see listAction
+     */
+    protected $count;
+
+    /**
      * @var string $title For the view.
      */
     protected $title = 'CRUD INTERFACE';
@@ -103,11 +109,31 @@ abstract class Controller extends \Zend_Controller_Action
 
         $id = $this->_getParam('id');
         if ($id === null) {
-            $this->view->assign('data', $this->obj->fetchAll()->toArray());
-            return $this->render('list');
+            $this->_helper->redirector('list');
+            return;
         }
-        $this->view->assign('record', $this->obj->find($id));
+
+        $record = $this->obj->find($id)->toArray();
+        $this->view->assign('record', $record[0]);
         return $this->render('detail');
+    }
+
+    public function listAction()
+    {
+        $offset = null;
+
+        $count = $this->_getParam('count')
+            ? $this->_getParam('count')
+            : $this->count;
+
+        if (null !== ($page = $this->_getParam('page'))
+            && $page > 0
+        ) {
+            $offset = ((int) $page - 1) * $count;
+        }
+
+        $data = $this->obj->fetchAll(null, null, $count, $offset)->toArray();
+        $this->view->assign('data', $data);
     }
 
     public function updateAction()
