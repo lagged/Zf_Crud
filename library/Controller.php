@@ -105,10 +105,10 @@ abstract class Controller extends \Zend_Controller_Action
 
     public function readAction()
     {
-        //$this->_helper->viewRenderer->setScriptController('crud');
+        $pkey = array_values($this->obj->info('primary'));
+        $pkey = $pkey[0];
 
-        $id = $this->_getParam('id');
-        if ($id === null) {
+        if (null === ($id = $this->_getParam($pkey))) {
             $this->_helper->redirector('list');
             return;
         }
