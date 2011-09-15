@@ -46,7 +46,12 @@ abstract class Controller extends \Zend_Controller_Action
      * @var int $count Maximum count when fetching all rows
      * @see listAction
      */
-    protected $count;
+    protected $count = 30;
+
+    /**
+     * @var array $primaryKey
+     */
+    protected $primaryKey;
 
     /**
      * @var string $title For the view.
@@ -75,10 +80,14 @@ abstract class Controller extends \Zend_Controller_Action
             'http://twitter.github.com/bootstrap/assets/css/bootstrap-1.2.0.min.css'
         );
         $this->view->assign('ui_title', $this->title);
-        $this->view->addScriptPath(dirname(__DIR__) . '/views/scripts/crud');
+        $this->view->addScriptPath(dirname(__DIR__) . '/views/scripts/');
 
         $this->cols = $this->obj->info(\Zend_Db_Table_Abstract::METADATA);
+
+        $this->primaryKey = array_values($this->obj->info('primary')); // composite?
+
         $this->view->assign('cols', $this->cols);
+        $this->view->assign('primary', $this->primaryKey);
     }
 
     public function createAction()
@@ -94,19 +103,28 @@ abstract class Controller extends \Zend_Controller_Action
         }
         if ($this->_request->isGet() === true) {
             $this->view->assign('record', $this->obj->find($id));
-            return $this->render('delete');
+            return $this->render('crud/delete', null, true);
         }
     }
 
+    /**
+     * Placeholder: redirect to list
+     *
+     * @return void
+     */
     public function indexAction()
     {
-        return $this->_helper->redirector('read');
+        return $this->_helper->redirector('list');
     }
 
+    /**
+     * Display a single entry.
+     *
+     * @return void
+     */
     public function readAction()
     {
-        $pkey = array_values($this->obj->info('primary'));
-        $pkey = $pkey[0];
+        $pkey = $this->primaryKey[0];
 
         if (null === ($id = $this->_getParam($pkey))) {
             $this->_helper->redirector('list');
@@ -115,9 +133,14 @@ abstract class Controller extends \Zend_Controller_Action
 
         $record = $this->obj->find($id)->toArray();
         $this->view->assign('record', $record[0]);
-        return $this->render('detail');
+        $this->render('crud/detail', null, true);
     }
 
+    /**
+     * Display a list of entries in a table.
+     *
+     * @return void
+     */
     public function listAction()
     {
         $offset = null;
@@ -134,6 +157,7 @@ abstract class Controller extends \Zend_Controller_Action
 
         $data = $this->obj->fetchAll(null, null, $count, $offset)->toArray();
         $this->view->assign('data', $data);
+        return $this->render('crud/list', null, true);
     }
 
     public function updateAction()
