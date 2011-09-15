@@ -1,17 +1,15 @@
-<h1>hello</h1>
+<h1><?php echo $this->ui_title; ?> &gt; Detail</h1>
 <table class="zebra-striped">
 <thead>
-<?php foreach ($this->cols as $column): ?>
-    <th><?php echo $column['COLUMN_NAME']; ?></th>
-<?php endforeach; ?>
+    <th>Name</th>
+    <th>Value</th>
 </thead>
 <tbody>
-<tr>
 <?php foreach ($this->record as $col => $val): ?>
-    <td class="data-<?php echo $col; ?>"><?php echo $val; ?></td>
-<?php endforeach; ?>
+<tr>
+    <th scope="row"><?php echo $col; ?></th>
+    <td><?php echo $val; ?></td>
 </tr>
+<?php endforeach; ?>
 </tbody>
 </table>
-
-<?php //exit;
