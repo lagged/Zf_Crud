@@ -72,7 +72,7 @@ abstract class Controller extends \Zend_Controller_Action
         $id = $this->_getParam('id');
         if ($id === null) {
             $this->view->assign('data', $this->obj->fetchAll());
-            return $this->render('list');
+            return $this->render('list', 'crud', true);
         }
         $this->view->assign('record', $this->obj->find($id));
         return $this->render('detail');
