@@ -29,7 +29,7 @@ abstract class Controller extends \Zend_Controller_Action
     /**
      * @var string $dbAdapter Name of Zend_Registry key for DbAdapter
      */
-    protected $dbAdapter;
+    protected $dbAdapter = 'dbAdapter';
 
     /**
      * @var string $model
@@ -87,6 +87,7 @@ abstract class Controller extends \Zend_Controller_Action
         );
         $this->view->assign('ui_title', $this->title);
         $this->view->addScriptPath(dirname(__DIR__) . '/views/scripts/');
+        $this->view->addHelperPath(dirname(__DIR__) . '/views/helpers/', 'Crud_View_Helper');
 
         $this->cols = array_diff(
             array_keys($this->obj->info(\Zend_Db_Table_Abstract::METADATA)),
