@@ -97,13 +97,17 @@ abstract class Controller extends \Zend_Controller_Action
 
     public function deleteAction()
     {
-        $id = $this->_getParam('id');
-        if ($id === null) {
+        if (null === ($id = $this->_getParam('id'))) {
             throw new \InvalidArgumentException("ID is not set.");
         }
         if ($this->_request->isGet() === true) {
-            $this->view->assign('record', $this->obj->find($id));
-            return $this->render('crud/delete', null, true);
+            try {
+                $stmt = $this->_getWhereStatement($id);
+                $this->obj->delete($stmt);
+                $this->_helper->redirector('list');
+            } catch (\Zend_Exception $e) {
+                throw $e;
+            }
         }
     }
 
@@ -183,9 +187,8 @@ abstract class Controller extends \Zend_Controller_Action
     {
         $id = ((int) $id == $id) ? (int) $id : $id;
         try {
-            $where = $this->obj->getAdapter()
-                ->quoteInto($this->primaryKey[0] . ' = ?', $id);
-            $this->obj->update($data, $where);
+            $stmt = $this->_getWhereStatement($id);
+            $this->obj->update($data, $stmt);
             $this->_helper->redirector('list');
         } catch (\Zend_Exception $e) {
             throw $e;
@@ -206,5 +209,13 @@ abstract class Controller extends \Zend_Controller_Action
     private function _getTable()
     {
         return $this->obj->info('name');
+    }
+
+    private function _getWhereStatement($id)
+    {
+        $id = ((int) $id == $id) ? (int) $id : $id;
+        $where = $this->obj->getAdapter()
+            ->quoteInto($this->primaryKey[0] . ' = ?', $id);
+        return $where;
     }
 }
