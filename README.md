@@ -2,6 +2,12 @@
 
 WORK IN PROGRESS
 
+### Requirements
+
+ * [EasyBib_Form_Decorator][deco]
+
+[deco]: https://github.com/easybib/EasyBib_Form_Decorator#readme
+
 ### Usage
 
 ...
