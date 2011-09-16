@@ -171,7 +171,7 @@ abstract class Controller extends \Zend_Controller_Action
 
         $data = $this->obj->fetchAll(null, null, $count, $offset)->toArray();
         $this->view->assign('data', $data);
-        $this->render('crud/list', null, true);
+        return $this->render('crud/list', null, true);
     }
 
     public function editAction()
@@ -191,6 +191,7 @@ abstract class Controller extends \Zend_Controller_Action
         $record = $this->obj->find($id)->toArray();
         $form->populate($record[0]);
         $this->view->form = $form;
+        return $this->render('crud/edit', null, true);
     }
 
     private function _update($id, $data)
