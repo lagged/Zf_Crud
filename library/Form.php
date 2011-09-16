@@ -101,7 +101,7 @@ class Form extends \Zend_Form
                 'ignore' => true,
                 'label'  => 'I confirm!',
                 'class'  => 'btn danger',
-            )
+            ) // FIXME: class doesn't work yet
         );
 
         /**
