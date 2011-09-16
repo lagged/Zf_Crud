@@ -17,14 +17,14 @@
         <tr>
 <?php $_primary = null; ?>
 <?php foreach ($row as $col => $val): ?>
- <?php if (in_array($col, $this->cols)): ?>
     <?php
     if ($col == $this->primary[0]) {
         $_primary = $val;
     }
     ?>
+    <?php if (in_array($col, $this->cols)): ?>
             <td class="data-<?php echo $col; ?>"><?php echo $val; ?></td>
-<?php endif; ?>
+    <?php endif; ?>
 <?php endforeach; ?>
             <td>
                 <a href="<?php echo $this->url(array('action' => 'read', $this->primary[0] => $_primary)); ?>">Detail</a>
