@@ -24,17 +24,17 @@
 namespace Lagged\Zf\Crud;
 
 /**
+ * A basic form for the {@link \Lagged\Zf\Crud\Controller}
+ *
  * @category Management
- * @package  Lagged\Zf\Crud
+ * @package  Lagged\Zf\Crud\Form
  * @author   Yvan Volochine <yvan.volochine@gmail.com>
  * @license  http://www.opensource.org/licenses/bsd-license.php New BSD License
  * @version  Release: @package_release@
  * @link     http://lagged.biz
  */
-
 class Form extends \Zend_Form
 {
-
     /**
      * init
      *
@@ -45,6 +45,15 @@ class Form extends \Zend_Form
         $this->setMethod('post');
     }
 
+    /**
+     * Generate the form from columns from \Zend_Db_Table
+     *
+     * @param array $cols
+     *
+     * @return void
+     * @uses   self::_createElement()
+     * @uses   EasyBib_Form_Decorator::setFormDecorator()
+     */
     public function generate($cols)
     {
         foreach ($cols as $col) {
@@ -60,6 +69,15 @@ class Form extends \Zend_Form
             )
         );
 
+        /**
+         * @desc Apply Twitter Bootstrap to all elements.
+         */
+        \EasyBib_Form_Decorator::setFormDecorator(
+            $this,
+            \EasyBib_Form_Decorator::BOOTSTRAP,
+            'submit',
+            'cancel'
+        );
     }
 
     /**
@@ -90,7 +108,7 @@ class Form extends \Zend_Form
                 break;
             case 'text':
                 $element = new \Zend_Form_Element_Textarea($col['COLUMN_NAME']);
-                $element->setAttrib('cols', 40)->setAttrib('rows', 10);
+                $element->setAttrib('class', 'xxlarge')->setAttrib('cols', 100)->setAttrib('rows', 20);
                 break;
             default:
                 throw new \Zend_Exception($col['DATA_TYPE'] . ' is not implemented');
