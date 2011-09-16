@@ -65,6 +65,7 @@ class Crud_View_Helper_BetterUrl extends \Zend_View_Helper_Abstract
         $url = sprintf('/%s/%s/%s',
             $link['module'], $link['controller'], $link['action']
         );
+
         if (is_array($options) && count($options) > 0) {
             foreach ($options as $k=>$v) {
 
@@ -96,6 +97,7 @@ class Crud_View_Helper_BetterUrl extends \Zend_View_Helper_Abstract
         if (!is_array($parts)) {
             throw new \DomainException("Something is wrong.");
         }
+        array_shift($parts);
         if (count($parts) < 3) {
             throw new \DomainException("You're using a route, we don't support that.");
         }
