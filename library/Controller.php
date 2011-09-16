@@ -85,7 +85,9 @@ abstract class Controller extends \Zend_Controller_Action
         $this->view->headLink()->appendStylesheet(
             'http://twitter.github.com/bootstrap/assets/css/bootstrap-1.2.0.min.css'
         );
+
         $this->view->assign('ui_title', $this->title);
+
         $this->view->addScriptPath(dirname(__DIR__) . '/views/scripts/');
         $this->view->addHelperPath(dirname(__DIR__) . '/views/helpers/', 'Crud_View_Helper');
 
@@ -100,24 +102,53 @@ abstract class Controller extends \Zend_Controller_Action
         $this->view->assign('primary', $this->primaryKey);
     }
 
+    /**
+     * Create!
+     *
+     * GET: form
+     * POST: create
+     *
+     * @return void
+     */
     public function createAction()
     {
-        // create form from table
+        $form = $this->_getForm();
+
+        if ($this->_request->isPost() === true) {
+            // validate
+            // save
+        }
+
+        $this->view->form = $form;
     }
 
+    /**
+     * Delete
+     *
+     * GET: confirm
+     * POST: delete
+     *
+     * @return void
+     */
     public function deleteAction()
     {
         if (null === ($id = $this->_getParam('id'))) {
             throw new \InvalidArgumentException("ID is not set.");
         }
-        if ($this->_request->isGet() === true) {
-            try {
-                $stmt = $this->_getWhereStatement($id);
-                $this->obj->delete($stmt);
-                $this->_helper->redirector('list');
-            } catch (\Zend_Exception $e) {
-                throw $e;
-            }
+
+        $form = new Form();
+        $form->confirm();
+
+        if ($this->_request->isPost() !== true) {
+            $this->view->assign('form', $form);
+            return $this->render('crud/delete', null, true); // confirm
+        }
+        try {
+            $stmt = $this->_getWhereStatement($id);
+            $this->obj->delete($stmt);
+            $this->_helper->redirector('list');
+        } catch (\Zend_Exception $e) {
+            throw $e;
         }
     }
 
@@ -141,14 +172,13 @@ abstract class Controller extends \Zend_Controller_Action
         $pkey = $this->primaryKey[0];
 
         if (null === ($id = $this->_getParam($pkey))) {
-            $this->_helper->redirector('list');
-            return;
+            return $this->_helper->redirector('list');
         }
 
         $record = $this->obj->find($id)->toArray();
         $this->view->assign('record', $record[0]);
         $this->view->assign('pkValue', $id);
-        $this->render('crud/detail', null, true);
+        return $this->render('crud/detail', null, true);
     }
 
     /**
@@ -174,16 +204,21 @@ abstract class Controller extends \Zend_Controller_Action
         return $this->render('crud/list', null, true);
     }
 
+    /**
+     * edit
+     *
+     * GET: form
+     * POST: update
+     *
+     * @return void
+     */
     public function editAction()
     {
         if (null === ($id = $this->_getParam('id'))) {
             throw new \Runtime_Exception('bouh');
         }
 
-        $form = new Form();
-        $form->generate(
-            $this->obj->info(\Zend_Db_Table_Abstract::METADATA)
-        );
+        $form = $this->_getForm();
 
         if ($this->_request->isPost()) {
             if ($form->isValid($this->_request->getPost())) {
@@ -192,7 +227,9 @@ abstract class Controller extends \Zend_Controller_Action
         }
         $record = $this->obj->find($id)->toArray();
         $form->populate($record[0]);
-        $this->view->form = $form;
+        $this->view->assign('form', $form);
+        $this->view->assign('pkValue', $id);
+
         return $this->render('crud/edit', null, true);
     }
 
@@ -208,6 +245,28 @@ abstract class Controller extends \Zend_Controller_Action
         }
     }
 
+    /**
+     * Create the form
+     *
+     * @return \Lagged\Zf\Crud\Form
+     * @uses   \Zend_Db_Table_Abstract::info()
+     */
+    private function _getForm()
+    {
+        $form = new Form();
+        $form->generate(
+            $this->obj->info(\Zend_Db_Table_Abstract::METADATA)
+        );
+        return $form;
+    }
+
+    /**
+     * Create the paginator for {@link self::listAction()}.
+     *
+     * @return \Zend_Paginator
+     * @uses   self::$dbAdapter
+     * @uses   self::$obj
+     */
     private function _getPaginator()
     {
         $db        = \Zend_Registry::get($this->dbAdapter);
@@ -219,6 +278,9 @@ abstract class Controller extends \Zend_Controller_Action
         return $paginator;
     }
 
+    /**
+     * @return string
+     */
     private function _getTable()
     {
         return $this->obj->info('name');
