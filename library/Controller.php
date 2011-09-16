@@ -134,7 +134,7 @@ abstract class Controller extends \Zend_Controller_Action
         $record = $this->obj->find($id)->toArray();
         $this->view->assign('record', $record[0]);
         $this->view->assign('pkValue', $id);
-        return $this->render('crud/detail', null, true);
+        $this->render('crud/detail', null, true);
     }
 
     /**
@@ -160,10 +160,35 @@ abstract class Controller extends \Zend_Controller_Action
         $this->render('crud/list', null, true);
     }
 
-    public function updateAction()
+    public function editAction()
     {
-        if ($this->_request->isPost() !== true) {
-            throw new \RuntimeException("Method must be post.");
+        if (null === ($id = $this->_getParam('id'))) {
+            throw new \Runtime_Exception('bouh');
+        }
+        include_once __DIR__ . '/Form.php';
+        $form = new Form();
+        $form->generate($this->cols);
+
+        if ($this->_request->isPost()) {
+            if ($form->isValid($this->_request->getPost())) {
+                $this->_update($id, $form->getValues());
+            }
+        }
+        $record = $this->obj->find($id)->toArray();
+        $form->populate($record[0]);
+        $this->view->form = $form;
+    }
+
+    private function _update($id, $data)
+    {
+        $id = ((int) $id == $id) ? (int) $id : $id;
+        try {
+            $where = $this->obj->getAdapter()
+                ->quoteInto($this->primaryKey[0] . ' = ?', $id);
+            $this->obj->update($data, $where);
+            $this->_helper->redirector('list');
+        } catch (\Zend_Exception $e) {
+            throw $e;
         }
     }
 
@@ -178,4 +203,8 @@ abstract class Controller extends \Zend_Controller_Action
         return $paginator;
     }
 
+    private function _getTable()
+    {
+        return $this->obj->info('name');
+    }
 }
