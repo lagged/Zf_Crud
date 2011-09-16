@@ -31,7 +31,7 @@ class Autoload
     public static function register()
     {
         if (self::$isRegistered === null) {
-            spl_autoload_register(array(__CLASS__, 'autoload'));
+            spl_autoload_register(array(__CLASS__, 'load'), true, true);
             self::$isRegistered = true;
         }
     }
@@ -47,10 +47,10 @@ class Autoload
      */
     public static function load($className)
     {
-        if (substr($className, 0, 16) != '\Lagged\Zf\Crud\\') {
+        if (substr($className, 0, 15) != 'Lagged\Zf\Crud\\') {
             return false;
         }
-        $file = substr($className, 16);
-        return include __DIR__ . '/' . str_replace('_', '/', $className) . '.php';
+        $file = substr($className, 15);
+        return include __DIR__ . '/' . str_replace('_', '/', $file) . '.php';
     }
 }
