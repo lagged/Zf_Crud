@@ -9,8 +9,8 @@
     &lt; Previous
   </a></li>
 <?php else: ?>
-  <li class="disabled"><a href="#">First</a></li>
-  <li class="prev disabled">&lt; Previous</li>
+  <li class="disabled"><a href="#">&lt;&lt;First</a></li>
+  <li class="prev disabled"><a href="#">&lt; Previous</a></li>
 <?php endif; ?>
 
 <?php foreach ($this->pagesInRange as $page): ?>
@@ -32,7 +32,7 @@
   </a></li>
 <?php else: ?>
   <li class="nex disabled"><a href="#">Next &gt;</a></li>
-  <li class="disabled"><a href="#">Last</a></li>
+  <li class="disabled"><a href="#">Last &gt;&gt;</a></li>
 <?php endif; ?>
   </ul>
 </div>
