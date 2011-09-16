@@ -88,6 +88,10 @@ class Form extends \Zend_Form
                 $element->setAttrib('size', 19);
                 $element->setAttrib('maxlength', 19);
                 break;
+            case 'text':
+                $element = new \Zend_Form_Element_Textarea($col['COLUMN_NAME']);
+                $element->setAttrib('cols', 40)->setAttrib('rows', 10);
+                break;
             default:
                 throw new \Zend_Exception($col['DATA_TYPE'] . ' is not implemented');
         }
