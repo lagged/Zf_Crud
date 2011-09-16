@@ -7,7 +7,7 @@
     <thead>
         <tr>
 <?php foreach ($this->cols as $column): ?>
-            <th><?php echo $column['COLUMN_NAME']; ?></th>
+            <th><?php echo $column; ?></th>
 <?php endforeach; ?>
             <th>actions</th>
         </tr>
@@ -17,12 +17,14 @@
         <tr>
 <?php $_primary = null; ?>
 <?php foreach ($row as $col => $val): ?>
+ <?php if (in_array($col, $this->cols)): ?>
     <?php
     if ($col == $this->primary[0]) {
         $_primary = $val;
     }
     ?>
             <td class="data-<?php echo $col; ?>"><?php echo $val; ?></td>
+<?php endif; ?>
 <?php endforeach; ?>
             <td>
                 <a href="<?php echo $this->url(array('action' => 'read', $this->primary[0] => $_primary)); ?>">Detail</a>

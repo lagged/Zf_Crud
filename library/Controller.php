@@ -43,6 +43,12 @@ abstract class Controller extends \Zend_Controller_Action
     protected $obj;
 
     /**
+     * @var array $hidden Hidden columns
+     * @see self::init()
+     */
+    protected $hidden = array();
+
+    /**
      * @var int $count Maximum count when fetching all rows
      * @see listAction
      */
@@ -82,7 +88,10 @@ abstract class Controller extends \Zend_Controller_Action
         $this->view->assign('ui_title', $this->title);
         $this->view->addScriptPath(dirname(__DIR__) . '/views/scripts/');
 
-        $this->cols = $this->obj->info(\Zend_Db_Table_Abstract::METADATA);
+        $this->cols = array_diff(
+            array_keys($this->obj->info(\Zend_Db_Table_Abstract::METADATA)),
+            $this->hidden
+        );
 
         $this->primaryKey = array_values($this->obj->info('primary')); // composite?
 
@@ -97,13 +106,17 @@ abstract class Controller extends \Zend_Controller_Action
 
     public function deleteAction()
     {
-        $id = $this->_getParam('id');
-        if ($id === null) {
+        if (null === ($id = $this->_getParam('id'))) {
             throw new \InvalidArgumentException("ID is not set.");
         }
         if ($this->_request->isGet() === true) {
-            $this->view->assign('record', $this->obj->find($id));
-            return $this->render('crud/delete', null, true);
+            try {
+                $stmt = $this->_getWhereStatement($id);
+                $this->obj->delete($stmt);
+                $this->_helper->redirector('list');
+            } catch (\Zend_Exception $e) {
+                throw $e;
+            }
         }
     }
 
@@ -134,7 +147,7 @@ abstract class Controller extends \Zend_Controller_Action
         $record = $this->obj->find($id)->toArray();
         $this->view->assign('record', $record[0]);
         $this->view->assign('pkValue', $id);
-        return $this->render('crud/detail', null, true);
+        $this->render('crud/detail', null, true);
     }
 
     /**
@@ -160,10 +173,34 @@ abstract class Controller extends \Zend_Controller_Action
         $this->render('crud/list', null, true);
     }
 
-    public function updateAction()
+    public function editAction()
     {
-        if ($this->_request->isPost() !== true) {
-            throw new \RuntimeException("Method must be post.");
+        if (null === ($id = $this->_getParam('id'))) {
+            throw new \Runtime_Exception('bouh');
+        }
+        include_once __DIR__ . '/Form.php';
+        $form = new Form();
+        $form->generate($this->cols);
+
+        if ($this->_request->isPost()) {
+            if ($form->isValid($this->_request->getPost())) {
+                $this->_update($id, $form->getValues());
+            }
+        }
+        $record = $this->obj->find($id)->toArray();
+        $form->populate($record[0]);
+        $this->view->form = $form;
+    }
+
+    private function _update($id, $data)
+    {
+        $id = ((int) $id == $id) ? (int) $id : $id;
+        try {
+            $stmt = $this->_getWhereStatement($id);
+            $this->obj->update($data, $stmt);
+            $this->_helper->redirector('list');
+        } catch (\Zend_Exception $e) {
+            throw $e;
         }
     }
 
@@ -178,4 +215,16 @@ abstract class Controller extends \Zend_Controller_Action
         return $paginator;
     }
 
+    private function _getTable()
+    {
+        return $this->obj->info('name');
+    }
+
+    private function _getWhereStatement($id)
+    {
+        $id = ((int) $id == $id) ? (int) $id : $id;
+        $where = $this->obj->getAdapter()
+            ->quoteInto($this->primaryKey[0] . ' = ?', $id);
+        return $where;
+    }
 }
