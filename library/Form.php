@@ -84,6 +84,7 @@ class Form extends \Zend_Form
      * Builds a confirm form for {@link \Lagged\Zf\Crud\Controller::deleteAction()}.
      *
      * @return void
+     * @todo   Create another form class, this seems messy. 
      */
     public function confirm()
     {
