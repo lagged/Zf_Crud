@@ -43,6 +43,12 @@ abstract class Controller extends \Zend_Controller_Action
     protected $obj;
 
     /**
+     * @var array $hidden Hidden columns
+     * @see self::init()
+     */
+    protected $hidden = array();
+
+    /**
      * @var int $count Maximum count when fetching all rows
      * @see listAction
      */
@@ -82,7 +88,10 @@ abstract class Controller extends \Zend_Controller_Action
         $this->view->assign('ui_title', $this->title);
         $this->view->addScriptPath(dirname(__DIR__) . '/views/scripts/');
 
-        $this->cols = $this->obj->info(\Zend_Db_Table_Abstract::METADATA);
+        $this->cols = array_diff(
+            array_keys($this->obj->info(\Zend_Db_Table_Abstract::METADATA)),
+            $this->hidden
+        );
 
         $this->primaryKey = array_values($this->obj->info('primary')); // composite?
 
