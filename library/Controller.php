@@ -69,7 +69,7 @@ abstract class Controller extends \Zend_Controller_Action
     public function init()
     {
         if (empty($this->model)) {
-            throw new \RuntimeException("You need to define self::$model");
+            throw new \RuntimeException("You need to define self::model");
         }
 
         $this->obj = new $this->model(array('db' => $this->dbConfig));
