@@ -179,9 +179,11 @@ abstract class Controller extends \Zend_Controller_Action
         if (null === ($id = $this->_getParam('id'))) {
             throw new \Runtime_Exception('bouh');
         }
-        include_once __DIR__ . '/Form.php';
+
         $form = new Form();
-        $form->generate($this->obj->info(\Zend_Db_Table_Abstract::METADATA));
+        $form->generate(
+            $this->obj->info(\Zend_Db_Table_Abstract::METADATA)
+        );
 
         if ($this->_request->isPost()) {
             if ($form->isValid($this->_request->getPost())) {

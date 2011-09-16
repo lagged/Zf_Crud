@@ -54,7 +54,7 @@ class Form extends \Zend_Form
      * @uses   self::_createElement()
      * @uses   EasyBib_Form_Decorator::setFormDecorator()
      */
-    public function generate($cols)
+    public function generate(array $cols)
     {
         foreach ($cols as $col) {
             if (! $col['PRIMARY']) {
