@@ -145,20 +145,19 @@ abstract class Controller extends \Zend_Controller_Action
     public function listAction()
     {
         $offset = null;
+        $count  = $this->_getParam('count', $this->count);
+        $page   = abs($this->_getParam('page', 1));
+        $page   = ((int) $page == 0) ? 1 : $page;
+        $offset = ((int) $page - 1) * $count;
 
-        $count = $this->_getParam('count')
-            ? $this->_getParam('count')
-            : $this->count;
+        $paginator = $this->_getPaginator();
+        $paginator->setCurrentPageNumber($page);
 
-        if (null !== ($page = $this->_getParam('page'))
-            && $page > 0
-        ) {
-            $offset = ((int) $page - 1) * $count;
-        }
+        $this->view->paginator = $paginator;
 
         $data = $this->obj->fetchAll(null, null, $count, $offset)->toArray();
         $this->view->assign('data', $data);
-        return $this->render('crud/list', null, true);
+        $this->render('crud/list', null, true);
     }
 
     public function updateAction()
@@ -167,4 +166,16 @@ abstract class Controller extends \Zend_Controller_Action
             throw new \RuntimeException("Method must be post.");
         }
     }
+
+    private function _getPaginator()
+    {
+        $db        = \Zend_Registry::get($this->dbConfig);
+        $table     = $this->obj->info('name');
+        $select    = $db->select()->from($table);
+        $paginator = \Zend_Paginator::factory($select);
+        $paginator->setItemCountPerPage($this->count);
+
+        return $paginator;
+    }
+
 }

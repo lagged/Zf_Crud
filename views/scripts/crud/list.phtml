@@ -13,7 +13,7 @@
         </tr>
     </thead>
     <tbody>
-<?php foreach ($this->data as $row): ?>
+<?php foreach ($this->paginator as $row): ?>
         <tr>
 <?php $_primary = null; ?>
 <?php foreach ($row as $col => $val): ?>
@@ -31,5 +31,7 @@
 <?php endforeach; ?>
     </tbody>
     </table>
-
+<?php echo $this->paginationControl(
+    $this->paginator, 'Sliding', 'crud/pagination_control.phtml'
+); ?>
 </div>
