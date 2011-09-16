@@ -139,6 +139,8 @@ abstract class Controller extends \Zend_Controller_Action
         $form = new Form();
         $form->confirm();
 
+        $this->view->assign('pkValue', $id);
+
         if ($this->_request->isPost() !== true) {
             $this->view->assign('form', $form);
             return $this->render('crud/delete', null, true); // confirm
