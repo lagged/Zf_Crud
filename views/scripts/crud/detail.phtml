@@ -3,10 +3,10 @@
         <h1><?php echo $this->ui_title; ?> &raquo; Detail</h1>
     </div>
     <ul class="pills">
-        <li><a href="<?php echo $this->url(array('action' => 'list'), null, true); ?>">Show all</a></li>
+        <li><a href="<?php echo $this->BetterUrl(array('action' => 'list')); ?>">Show all</a></li>
         <li class="active"><a href="#">Detail</a></li>
-        <li><a href="<?php echo $this->url(array('action' => 'edit', $this->primary[0] => $this->pkValue), null, true); ?>">Edit</a></li>
-        <li><a href="#">Delete</a></li>
+        <li><a href="<?php echo $this->BetterUrl(array('action' => 'edit', $this->primary[0] => $this->pkValue)); ?>">Edit</a></li>
+        <li><a href="<?php echo $this->BetterUrl(array('action' => 'delete', $this->primary[0] => $this->pkValue)); ?>">Delete</a></li>
     </ul>
 
     <table class="zebra-striped">
