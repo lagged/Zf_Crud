@@ -17,6 +17,7 @@ namespace Lagged\Zf\Crud;
  * @license  http://www.opensource.org/licenses/bsd-license.php New BSD License
  * @version  Release: @package_release@
  * @link     http://lagged.biz
+ * @todo     Remove this in favour of Lagged_Loader
  */
 class Autoload
 {
@@ -37,6 +38,8 @@ class Autoload
 
     /**
      * loadClass()
+     *
+     * Load everything related to this library (not much :D).
      *
      * @param string $className
      *
