@@ -27,9 +27,9 @@ abstract class Controller extends \Zend_Controller_Action
     protected $cols;
 
     /**
-     * @var Zend_Config $db
+     * @var string $dbAdapter Name of Zend_Registry key for DbAdapter
      */
-    protected $dbConfig = null;
+    protected $dbAdapter;
 
     /**
      * @var string $model
@@ -63,7 +63,7 @@ abstract class Controller extends \Zend_Controller_Action
      *
      * @return void
      * @uses   self::$model
-     * @uses   self::$dbConfig
+     * @uses   self::$dbAdapter
      * @uses   Zend_View
      */
     public function init()
@@ -72,7 +72,7 @@ abstract class Controller extends \Zend_Controller_Action
             throw new \RuntimeException("You need to define self::model");
         }
 
-        $this->obj = new $this->model(array('db' => $this->dbConfig));
+        $this->obj = new $this->model(array('db' => $this->dbAdapter));
         if (!($this->obj instanceof \Zend_Db_Table_Abstract)) {
             throw new \LogicException("The model must extend Zend_Db_Table_Abstract");
         }
@@ -169,7 +169,7 @@ abstract class Controller extends \Zend_Controller_Action
 
     private function _getPaginator()
     {
-        $db        = \Zend_Registry::get($this->dbConfig);
+        $db        = \Zend_Registry::get($this->dbAdapter);
         $table     = $this->obj->info('name');
         $select    = $db->select()->from($table);
         $paginator = \Zend_Paginator::factory($select);
