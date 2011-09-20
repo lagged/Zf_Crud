@@ -33,7 +33,7 @@ namespace Lagged\Zf\Crud;
  * @version  Release: @package_release@
  * @link     http://lagged.biz
  */
-class ConfirmForm extends \Zend_Form
+class Form_Confirm extends \Zend_Form
 {
     /**
      * init

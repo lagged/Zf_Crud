@@ -136,7 +136,7 @@ abstract class Controller extends \Zend_Controller_Action
             throw new \InvalidArgumentException("ID is not set.");
         }
 
-        $form = new ConfirmForm();
+        $form = new Form_Confirm();
 
         $this->view->assign('pkValue', $id);
 
@@ -254,7 +254,7 @@ abstract class Controller extends \Zend_Controller_Action
      */
     private function _getForm()
     {
-        $form = new Form();
+        $form = new Form_Edit();
         $form->generate(
             $this->obj->info(\Zend_Db_Table_Abstract::METADATA)
         );
