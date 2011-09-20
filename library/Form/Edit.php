@@ -85,35 +85,70 @@ class Form_Edit extends \Zend_Form
      */
     private function _createElement($col)
     {
+        if (preg_match('/^enum\((.+)\)/', $col['DATA_TYPE'], $matches)) {
+            $col['DATA_TYPE'] = 'enum';
+            $col['DATA_LIST'] = $this->_getEnumList($matches[1]);
+        };
+
         switch ($col['DATA_TYPE']) {
-            case 'int':
-                $element = new \Zend_Form_Element_Text($col['COLUMN_NAME']);
-                break;
-            case 'varchar':
-                $element = new \Zend_Form_Element_Text($col['COLUMN_NAME']);
-                if ($col['LENGTH']) {
-                    $element->setAttrib('size', $col['LENGTH']);
-                    $element->setAttrib('maxlength', $col['LENGTH']);
-                }
-                break;
-            case 'date':
-                $element = new \Zend_Form_Element_Text($col['COLUMN_NAME']);
-                $element->setAttrib('size', 10);
-                $element->setAttrib('maxlength', 10);
-                break;
-            case 'datetime':
-                $element = new \Zend_Form_Element_Text($col['COLUMN_NAME']);
-                $element->setAttrib('size', 19);
-                $element->setAttrib('maxlength', 19);
-                break;
-            case 'text':
-                $element = new \Zend_Form_Element_Textarea($col['COLUMN_NAME']);
-                $element->setAttrib('class', 'xxlarge')->setAttrib('cols', 100)->setAttrib('rows', 20);
-                break;
-            default:
-                throw new \Zend_Exception($col['DATA_TYPE'] . ' is not implemented');
+        case 'int':
+            $element = new \Zend_Form_Element_Text($col['COLUMN_NAME']);
+            break;
+        case 'varchar':
+            $element = new \Zend_Form_Element_Text($col['COLUMN_NAME']);
+            if ($col['LENGTH']) {
+                $element->setAttrib('size', $col['LENGTH']);
+                $element->setAttrib('maxlength', $col['LENGTH']);
+            }
+            break;
+        case 'date':
+            $element = new \Zend_Form_Element_Text($col['COLUMN_NAME']);
+            $element->setAttrib('size', 10);
+            $element->setAttrib('maxlength', 10);
+            break;
+        case 'datetime':
+            $element = new \Zend_Form_Element_Text($col['COLUMN_NAME']);
+            $element->setAttrib('size', 19);
+            $element->setAttrib('maxlength', 19);
+            break;
+        case 'text':
+            $element = new \Zend_Form_Element_Textarea($col['COLUMN_NAME']);
+            $element->setAttrib('class', 'xxlarge')->setAttrib('cols', 100)->setAttrib('rows', 20);
+            break;
+        case 'enum':
+            $element = new \Zend_Form_Element_Select($col['COLUMN_NAME']);
+            $element->addMultiOptions($col['DATA_LIST']);
+            break;
+        default:
+            var_dump($col); die();
+
+            throw new \Zend_Exception($col['DATA_TYPE'] . ' is not implemented');
         }
         $element->setLabel($col['COLUMN_NAME']);
         $this->addElement($element);
     }
+
+    /**
+     * _getEnumList
+     * Parse the enum string and reformat array to get a valid data list for ENUM.
+     *
+     * @param string $str ''
+     * @return array
+     * @throws Zend_Exception if enum string is not valid
+     */
+    private function _getEnumList($str)
+    {
+        try {
+            $str  = str_replace('\'', '', $str);
+            $data = explode(',', $str);
+            foreach ($data as $key => $value) {
+                $data[$value] = $value;
+                unset($data[$key]);
+            }
+            return $data;
+        } catch (\Zend_Exception $e) {
+            throw $e;
+        }
+    }
+
 }
