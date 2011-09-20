@@ -133,6 +133,8 @@ class Form_Edit extends \Zend_Form
             throw new \Zend_Exception($col['DATA_TYPE'] . ' is not implemented');
         }
         $element->setLabel($col['COLUMN_NAME']);
+        $element->setRequired(! $col['NULLABLE']);
+
         $this->addElement($element);
     }
 
