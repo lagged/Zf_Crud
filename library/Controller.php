@@ -211,7 +211,7 @@ abstract class Controller extends \Zend_Controller_Action
             && null !== ($order = $this->_getParam('o'))
             && null !== ($orderType = $this->_getParam('ot'))
         ) {
-            $this->orderBy = $this->_checkOrderBy($order, $orderType);
+            $this->_assignOrderBy($order, $orderType);
         }
 
         $paginator = $this->_getPaginator();
@@ -301,7 +301,6 @@ abstract class Controller extends \Zend_Controller_Action
         if ($this->order && $this->orderType) {
             $select->order($this->order . ' ' . $this->orderType);
         }
-
         $paginator = \Zend_Paginator::factory($select);
         $paginator->setItemCountPerPage($this->count);
 
@@ -325,14 +324,14 @@ abstract class Controller extends \Zend_Controller_Action
     }
 
     /**
-     * _checkOrderBy
+     * _assignOrderBy
      *
      * @param string $order     order column
      * @param string $type ''
-     * @return string
+     * @return void
      * @throws Zend_Exception if the string is invalid
      */
-    private function _checkOrderBy($order, $type)
+    private function _assignOrderBy($order, $type)
     {
         $validTypes = array('ASC', 'DESC');
         if (! in_array($order, $this->cols)
@@ -342,7 +341,6 @@ abstract class Controller extends \Zend_Controller_Action
         };
         $this->order = $order;
         $this->orderType = $type;
-        return sprintf("%s %s", $order, $type);
     }
 
     /**
