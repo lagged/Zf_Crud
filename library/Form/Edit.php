@@ -21,7 +21,7 @@
  * @link     http://lagged.biz
  */
 
-namespace Lagged\Zf\Crud;
+namespace Lagged\Zf\Crud\Form;
 
 /**
  * A basic form for the {@link \Lagged\Zf\Crud\Controller}
@@ -33,7 +33,7 @@ namespace Lagged\Zf\Crud;
  * @version  Release: @package_release@
  * @link     http://lagged.biz
  */
-class Form_Edit extends \Zend_Form
+class Edit extends \Zend_Form
 {
     /**
      * init

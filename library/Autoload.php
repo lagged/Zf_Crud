@@ -51,6 +51,6 @@ class Autoload
             return false;
         }
         $file = substr($className, 15);
-        return include __DIR__ . '/' . str_replace('_', '/', $file) . '.php';
+        return include __DIR__ . '/' . str_replace('\\', '/', $file) . '.php';
     }
 }

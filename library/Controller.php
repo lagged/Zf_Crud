@@ -9,6 +9,8 @@
  */
 
 namespace Lagged\Zf\Crud;
+use Lagged\Zf\Crud\Form\Edit as Edit;
+use Lagged\Zf\Crud\Form\Confirm as Confirm;
 
 /**
  * @category Management
@@ -137,7 +139,7 @@ abstract class Controller extends \Zend_Controller_Action
             throw new \InvalidArgumentException("ID is not set.");
         }
 
-        $form = new Form_Confirm();
+        $form = new Confirm();
 
         $this->view->assign('pkValue', $id);
 
@@ -255,7 +257,7 @@ abstract class Controller extends \Zend_Controller_Action
      */
     private function _getForm()
     {
-        $form = new Form_Edit();
+        $form = new Edit();
         $form->generate(
             $this->obj->info(\Zend_Db_Table_Abstract::METADATA)
         );
