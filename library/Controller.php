@@ -100,6 +100,7 @@ abstract class Controller extends \Zend_Controller_Action
 
         $this->view->assign('cols', $this->cols);
         $this->view->assign('primary', $this->primaryKey);
+        $this->view->action = $this->getRequest()->getActionName();
     }
 
     /**
