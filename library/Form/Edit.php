@@ -85,9 +85,11 @@ class Form_Edit extends \Zend_Form
      */
     private function _createElement($col)
     {
-        if (preg_match('/^enum\((.+)\)/', $col['DATA_TYPE'], $matches)) {
-            $col['DATA_TYPE'] = 'enum';
-            $col['DATA_LIST'] = $this->_getEnumList($matches[1]);
+        if (preg_match('/^(enum|set)\((.+)\)/', $col['DATA_TYPE'], $matches)) {
+            $col['DATA_TYPE'] = $matches[1];
+            $col['DATA_LIST'] = $this->_getEnumList(
+                $matches[2], $col['NULLABLE']
+            );
         };
 
         switch ($col['DATA_TYPE']) {
@@ -113,12 +115,17 @@ class Form_Edit extends \Zend_Form
             break;
         case 'text':
             $element = new \Zend_Form_Element_Textarea($col['COLUMN_NAME']);
-            $element->setAttrib('class', 'xxlarge')->setAttrib('cols', 100)->setAttrib('rows', 20);
+            $element->setAttrib('class', 'xxlarge')->setAttrib('cols', 100)
+                ->setAttrib('rows', 20);
             break;
         case 'tinyint':
             $element = new \Zend_Form_Element_Checkbox($col['COLUMN_NAME']);
             break;
         case 'enum':
+            $element = new \Zend_Form_Element_Select($col['COLUMN_NAME']);
+            $element->addMultiOptions($col['DATA_LIST']);
+            break;
+        case 'set':
             $element = new \Zend_Form_Element_Select($col['COLUMN_NAME']);
             $element->addMultiOptions($col['DATA_LIST']);
             break;
@@ -131,13 +138,14 @@ class Form_Edit extends \Zend_Form
 
     /**
      * _getEnumList
-     * Parse the enum string and reformat array to get a valid data list for ENUM.
+     * Parse the enum|set string and reformat array to get a valid data list.
      *
-     * @param string $str ''
+     * @param string $str      The string to parse
+     * @param bool   $nullable If the column can be null
      * @return array
-     * @throws Zend_Exception if enum string is not valid
+     * @throws Zend_Exception if the string is not valid
      */
-    private function _getEnumList($str)
+    private function _getEnumList($str, $nullable)
     {
         try {
             $str  = str_replace('\'', '', $str);
@@ -145,6 +153,9 @@ class Form_Edit extends \Zend_Form
             foreach ($data as $key => $value) {
                 $data[$value] = $value;
                 unset($data[$key]);
+            }
+            if ($nullable) {
+                $data = array_merge(array("" => "None"), $data);
             }
             return $data;
         } catch (\Zend_Exception $e) {
