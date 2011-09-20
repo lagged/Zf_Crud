@@ -2,11 +2,6 @@
     <div class="page-header">
         <h1><?php echo $this->ui_title; ?> &raquo; Delete</h1>
     </div>
-    <ul class="pills">
-        <li><a href="<?php echo $this->BetterUrl(array('action' => 'list')); ?>">Show all</a></li>
-        <li><a href="<?php echo $this->BetterUrl(array('action' => 'read', $this->primary[0] => $this->pkValue)); ?>">Detail</a></li>
-        <li><a href="<?php echo $this->BetterUrl(array('action' => 'delete', $this->primary[0] => $this->pkValue)); ?>">Edit</a></li>
-        <li class="active"><a href="#">Delete</a></li>
-    </ul>
+    <?php echo $this->render('crud/top_nav.phtml'); ?>
     <?php echo $this->form->setAction($this->url()); ?>
 </div>
