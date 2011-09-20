@@ -62,6 +62,16 @@ abstract class Controller extends \Zend_Controller_Action
     protected $primaryKey;
 
     /**
+     * @var string $order ORDER BY column name
+     */
+    protected $order;
+
+    /**
+     * @var string $orderType ORDER BY type
+     */
+    protected $orderType = 'ASC';
+
+    /**
      * @var string $title For the view.
      */
     protected $title = 'CRUD INTERFACE';
@@ -197,6 +207,12 @@ abstract class Controller extends \Zend_Controller_Action
         $page   = abs($this->_getParam('page', 1));
         $page   = ((int) $page == 0) ? 1 : $page;
         $offset = ((int) $page - 1) * $count;
+        if ($this->_request->isGet()
+            && null !== ($order = $this->_getParam('o'))
+            && null !== ($orderType = $this->_getParam('ot'))
+        ) {
+            $this->orderBy = $this->_checkOrderBy($order, $orderType);
+        }
 
         $paginator = $this->_getPaginator();
         $paginator->setCurrentPageNumber($page);
@@ -205,6 +221,12 @@ abstract class Controller extends \Zend_Controller_Action
 
         $data = $this->obj->fetchAll(null, null, $count, $offset)->toArray();
         $this->view->assign('data', $data);
+        if ($this->order) {
+            $this->view->order = $this->order;
+            $params = '?o=' . $this->order . '&ot=' . $this->orderType;
+            $this->view->assign('orderParams', array('orderParams' => $params));
+        }
+        $this->view->otNew = $this->_getNextOrderType($this->orderType);
         return $this->render('crud/list', null, true);
     }
 
@@ -276,6 +298,10 @@ abstract class Controller extends \Zend_Controller_Action
         $db        = \Zend_Registry::get($this->dbAdapter);
         $table     = $this->obj->info('name');
         $select    = $db->select()->from($table);
+        if ($this->order && $this->orderType) {
+            $select->order($this->order . ' ' . $this->orderType);
+        }
+
         $paginator = \Zend_Paginator::factory($select);
         $paginator->setItemCountPerPage($this->count);
 
@@ -297,4 +323,39 @@ abstract class Controller extends \Zend_Controller_Action
             ->quoteInto($this->primaryKey[0] . ' = ?', $id);
         return $where;
     }
+
+    /**
+     * _checkOrderBy
+     *
+     * @param string $order     order column
+     * @param string $type ''
+     * @return string
+     * @throws Zend_Exception if the string is invalid
+     */
+    private function _checkOrderBy($order, $type)
+    {
+        $validTypes = array('ASC', 'DESC');
+        if (! in_array($order, $this->cols)
+            || ! in_array($type, $validTypes)
+        ) {
+            throw new \Zend_Exception('Invalid order');
+        };
+        $this->order = $order;
+        $this->orderType = $type;
+        return sprintf("%s %s", $order, $type);
+    }
+
+    /**
+     * _getNextOrderType
+     * Returns the opposite of current order
+     *
+     * @return string
+     */
+    private function _getNextOrderType()
+    {
+        return ($this->orderType == 'ASC')
+            ? 'DESC'
+            : 'ASC';
+    }
+
 }

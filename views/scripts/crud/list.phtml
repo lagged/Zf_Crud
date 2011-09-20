@@ -7,7 +7,7 @@
     <thead>
         <tr>
 <?php foreach ($this->cols as $column): ?>
-            <th><?php echo $column; ?></th>
+            <th><?php echo '<a href="?o=' . $column . '&ot='; ?><?php echo ($this->order == $column) ? $this->otNew : 'ASC'; ?><?php echo '">' . $column . '</a>'; ?></th>
 <?php endforeach; ?>
             <th>actions</th>
         </tr>
@@ -34,6 +34,6 @@
     </tbody>
     </table>
 <?php echo $this->paginationControl(
-    $this->paginator, 'Sliding', 'crud/pagination_control.phtml'
+    $this->paginator, 'Sliding', 'crud/pagination_control.phtml', $this->orderParams
 ); ?>
 </div>
