@@ -81,41 +81,6 @@ class Form extends \Zend_Form
     }
 
     /**
-     * Builds a confirm form for {@link \Lagged\Zf\Crud\Controller::deleteAction()}.
-     *
-     * @return void
-     * @todo   Create another form class, this seems messy. 
-     */
-    public function confirm()
-    {
-        $confirm = new \Zend_Form_Element_Select('confirm');
-        $confirm->setLabel('Please confirm')
-            ->setRequired(true)
-            ->setMultiOptions(array('no' => 'No', 'yes' => 'Yes'))
-            ->addValidator('NotEmpty', true);
-
-        $this->addElement($confirm);
-
-        $this->addElement(
-            'submit', 'submit', array(
-                'ignore' => true,
-                'label'  => 'I confirm!',
-                'class'  => 'btn danger',
-            ) // FIXME: class doesn't work yet
-        );
-
-        /**
-         * @desc Apply Twitter Bootstrap to all elements.
-         */
-        \EasyBib_Form_Decorator::setFormDecorator(
-            $this,
-            \EasyBib_Form_Decorator::BOOTSTRAP,
-            'submit',
-            'cancel'
-        );
-    }
-
-    /**
      * _createElement
      */
     private function _createElement($col)
