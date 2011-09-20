@@ -115,13 +115,14 @@ class Form_Edit extends \Zend_Form
             $element = new \Zend_Form_Element_Textarea($col['COLUMN_NAME']);
             $element->setAttrib('class', 'xxlarge')->setAttrib('cols', 100)->setAttrib('rows', 20);
             break;
+        case 'tinyint':
+            $element = new \Zend_Form_Element_Checkbox($col['COLUMN_NAME']);
+            break;
         case 'enum':
             $element = new \Zend_Form_Element_Select($col['COLUMN_NAME']);
             $element->addMultiOptions($col['DATA_LIST']);
             break;
         default:
-            var_dump($col); die();
-
             throw new \Zend_Exception($col['DATA_TYPE'] . ' is not implemented');
         }
         $element->setLabel($col['COLUMN_NAME']);
