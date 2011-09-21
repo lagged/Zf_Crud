@@ -2,10 +2,10 @@
 <div class="pagination">
 <ul>
 <?php if (isset($this->previous)): ?>
-  <li><a href="<?php echo $this->first . $this->orderParams; ?>">
+  <li><a href="<?php echo $this->BetterUrl(array('action' => 'list', 'page' => $this->first), true); ?>">
      &lt;&lt; First
   </a></li>
-  <li class="prev"><a href="<?php echo $this->previous . $this->orderParams; ?>">
+  <li class="prev"><a href="<?php echo $this->BetterUrl(array('action' => 'list', 'page' => $this->previous), true); ?>">
     &lt; Previous
   </a></li>
 <?php else: ?>
@@ -15,7 +15,7 @@
 
 <?php foreach ($this->pagesInRange as $page): ?>
   <?php if ($page != $this->current): ?>
-    <li class="active"><a href="<?php echo $page . $this->orderParams; ?>">
+    <li class="active"><a href="<?php echo $this->BetterUrl(array('action' => 'list', 'page' => $page), true); ?>">
       <?php echo $page; ?>
     </a></li>
   <?php else: ?>
@@ -24,10 +24,10 @@
 <?php endforeach; ?>
 
 <?php if (isset($this->next)): ?>
-  <li class="nex"><a href="<?php echo $this->next . $this->orderParams; ?>">
+  <li class="nex"><a href="<?php echo $this->BetterUrl(array('action' => 'list', 'page' => $this->next), true); ?>">
     Next &gt;
   </a></li>
-  <li class="nex"><a href="<?php echo $this->last . $this->orderParams; ?>">
+  <li class="nex"><a href="<?php echo $this->BetterUrl(array('action' => 'list', 'page' => $this->last), true); ?>">
     Last &gt;&gt;
   </a></li>
 <?php else: ?>

@@ -31,13 +31,14 @@ class Crud_View_Helper_BetterUrl extends \Zend_View_Helper_Abstract
     /**
      * BetterUrl: assumes /module/controller/action
      *
-     * @param $options Similar to Zend_View_Helper_Url
+     * @param array $options Similar to Zend_View_Helper_Url
+     * @param bool  $keepExtra Keep extra URI params
      *
      * @return string
      */
-    public function BetterUrl(array $options)
+    public function BetterUrl(array $options, $keepExtra = false)
     {
-        $this->parseUri();
+        $this->parseUri($keepExtra);
 
         $link = array();
 
@@ -81,7 +82,7 @@ class Crud_View_Helper_BetterUrl extends \Zend_View_Helper_Abstract
         }
 
         if ($this->query !== null) {
-            $url .= '?' . $this->query;
+            $url .= $this->query;
         }
         return $url;
     }
@@ -89,11 +90,15 @@ class Crud_View_Helper_BetterUrl extends \Zend_View_Helper_Abstract
     /**
      * Parse {@global $_SERVER['REQUEST_URI']}
      *
+     * @param bool $keepExtra Keep extra URI params
+     *
      * @return void
      */
-    protected function parseUri()
+    protected function parseUri($keepExtra = false)
     {
-        $parts = explode('/', $_SERVER['REQUEST_URI']);
+        $uri   = $_SERVER['REQUEST_URI'];
+        $parts = explode('/', $uri);
+
         if (!is_array($parts)) {
             throw new \DomainException("Something is wrong.");
         }
@@ -107,6 +112,10 @@ class Crud_View_Helper_BetterUrl extends \Zend_View_Helper_Abstract
 
         array_splice($parts, 0, 3);
 
+        if ($keepExtra) {
+            $this->parseRest($uri);
+        }
+
         if (!is_array($parts) || count($parts) == 0) {
             return;
         }
@@ -115,18 +124,16 @@ class Crud_View_Helper_BetterUrl extends \Zend_View_Helper_Abstract
     /**
      * For leftovers after module/controller/action are detected.
      *
-     * @param array $parts
+     * @param string $uri
      *
      * @return void
      * @uses   self::$query
-     * @uses   self::$params
-     * @todo   Figure out parsing of the rest.
+     * @todo   Figure out parsing of the rest if not $_GET
      */
-    protected function parseRest(array $parts)
+    protected function parseRest($uri)
     {
-        $uri = implode('/', $parts);
         if (strstr($uri, '?')) {
-            list($uri, $this->query) = explode('?', $uri);
+            $this->query = '?' . end(explode('?', $uri));
         }
 
         // this is a bad idea
