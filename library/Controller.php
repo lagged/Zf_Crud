@@ -223,8 +223,6 @@ abstract class Controller extends \Zend_Controller_Action
         $this->view->assign('data', $data);
         if ($this->order) {
             $this->view->order = $this->order;
-            $params = '?o=' . $this->order . '&ot=' . $this->orderType;
-            $this->view->assign('orderParams', array('orderParams' => $params));
         }
         $this->view->otNew = $this->_getNextOrderType($this->orderType);
         return $this->render('crud/list', null, true);
