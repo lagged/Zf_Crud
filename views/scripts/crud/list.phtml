@@ -7,7 +7,7 @@
     <thead>
         <tr>
 <?php foreach ($this->cols as $column): ?>
-            <th><?php echo '<a href="?o=' . $column . '&ot='; ?><?php echo ($this->order == $column) ? $this->otNew : 'ASC'; ?><?php echo '">' . $column . '</a>'; ?></th>
+            <th><a href="<?php $ot = ($column == $this->order) ? $this->otNew : 'ASC'; echo $this->url(array_merge($this->urlParams, array('o' => $column, 'ot' => $ot))); ?>"><?php echo $column; ?></a></th>
 <?php endforeach; ?>
             <th>actions</th>
         </tr>
@@ -33,7 +33,9 @@
 <?php endforeach; ?>
     </tbody>
     </table>
-<?php echo $this->paginationControl(
-    $this->paginator, 'Sliding', 'crud/pagination_control.phtml'
-); ?>
+<?php
+     echo $this->paginationControl(
+            $this->paginator, 'Sliding', 'crud/pagination_control.phtml', $this->urlParams
+     ); ?>
+    <?php echo $this->form; ?>
 </div>

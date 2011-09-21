@@ -9,8 +9,9 @@
  */
 
 namespace Lagged\Zf\Crud;
-use Lagged\Zf\Crud\Form\Edit as Edit;
+use Lagged\Zf\Crud\Form\Edit    as Edit;
 use Lagged\Zf\Crud\Form\Confirm as Confirm;
+use Lagged\Zf\Crud\Form\JumpTo  as JumpTo;
 
 /**
  * @category Management
@@ -202,15 +203,13 @@ abstract class Controller extends \Zend_Controller_Action
      */
     public function listAction()
     {
-        $offset = null;
-        $count  = $this->_getParam('count', $this->count);
-        $page   = abs($this->_getParam('page', 1));
-        $page   = ((int) $page == 0) ? 1 : $page;
-        $offset = ((int) $page - 1) * $count;
-        if ($this->_request->isGet()
-            && null !== ($order = $this->_getParam('o'))
-            && null !== ($orderType = $this->_getParam('ot'))
-        ) {
+        $offset    = null;
+        $page      = abs($this->_getParam('p', 1));
+        $page      = ((int) $page == 0) ? 1 : $page;
+        $offset    = ((int) $page - 1) * $this->count;
+        $order     = $this->_getParam('o');
+        $orderType = $this->_getParam('ot');
+        if ($order && $orderType) {
             $this->_assignOrderBy($order, $orderType);
         }
 
@@ -219,12 +218,29 @@ abstract class Controller extends \Zend_Controller_Action
 
         $this->view->paginator = $paginator;
 
-        $data = $this->obj->fetchAll(null, null, $count, $offset)->toArray();
+        $data = $this->obj->fetchAll(
+            null, null, $this->count, $offset
+        )->toArray();
         $this->view->assign('data', $data);
+
         if ($this->order) {
             $this->view->order = $this->order;
         }
         $this->view->otNew = $this->_getNextOrderType($this->orderType);
+
+        $query = $this->_request->getQuery();
+        $this->view->assign('urlParams', array('params' => $query));
+
+        $url = $this->view->BetterUrl(
+            array(
+                'action' => 'list',
+                'o'      => $this->order,
+                'ot'     => $this->orderType
+            )
+        );
+
+        $form = new JumpTo();
+        $this->view->form = $form->setAction($url);
         return $this->render('crud/list', null, true);
     }
 
@@ -244,8 +260,8 @@ abstract class Controller extends \Zend_Controller_Action
 
         $form = $this->_getForm();
 
-        if ($this->_request->isPost()) {
-            if ($form->isValid($this->_request->getPost())) {
+        if ($this->_request->isGet()) {
+            if ($form->isValid($this->_request->getParams())) {
                 $this->_update($id, $form->getValues());
             }
         }
@@ -257,6 +273,9 @@ abstract class Controller extends \Zend_Controller_Action
         return $this->render('crud/edit', null, true);
     }
 
+    /**
+     *
+     */
     private function _update($id, $data)
     {
         $id = ((int) $id == $id) ? (int) $id : $id;

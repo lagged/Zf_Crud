@@ -2,10 +2,10 @@
 <div class="pagination">
 <ul>
 <?php if (isset($this->previous)): ?>
-  <li><a href="<?php echo $this->BetterUrl(array('action' => 'list', 'page' => $this->first), true); ?>">
+  <li><a href="<?php echo $this->url(array_merge($this->params, array('p' => $this->first))); ?>">
      &lt;&lt; First
   </a></li>
-  <li class="prev"><a href="<?php echo $this->BetterUrl(array('action' => 'list', 'page' => $this->previous), true); ?>">
+  <li class="prev"><a href="<?php echo $this->url(array_merge($this->params, array('p' => $this->previous))); ?>">
     &lt; Previous
   </a></li>
 <?php else: ?>
@@ -15,7 +15,7 @@
 
 <?php foreach ($this->pagesInRange as $page): ?>
   <?php if ($page != $this->current): ?>
-    <li class="active"><a href="<?php echo $this->BetterUrl(array('action' => 'list', 'page' => $page), true); ?>">
+    <li class="active"><a href="<?php echo $this->url(array_merge($this->params, array('p' => $page))); ?>">
       <?php echo $page; ?>
     </a></li>
   <?php else: ?>
@@ -24,10 +24,10 @@
 <?php endforeach; ?>
 
 <?php if (isset($this->next)): ?>
-  <li class="nex"><a href="<?php echo $this->BetterUrl(array('action' => 'list', 'page' => $this->next), true); ?>">
+  <li class="nex"><a href="<?php echo $this->url(array_merge($this->params, array('p' => $this->next))); ?>">
     Next &gt;
   </a></li>
-  <li class="nex"><a href="<?php echo $this->BetterUrl(array('action' => 'list', 'page' => $this->last), true); ?>">
+  <li class="nex"><a href="<?php echo $this->url(array_merge($this->params, array('p' => $this->last))); ?>">
     Last &gt;&gt;
   </a></li>
 <?php else: ?>
