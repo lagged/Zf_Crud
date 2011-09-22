@@ -1,7 +1,6 @@
 <div class="container">
-    <div class="page-header">
+    <div class="page-header-off">
         <h1><?php echo $this->ui_title; ?></h1>
-        <?php echo $this->searchForm; ?>
     </div>
     <p class="new">
         <a href="create" class="btn small">Add new entry</a>
@@ -40,5 +39,8 @@
      echo $this->paginationControl(
             $this->paginator, 'Sliding', 'crud/pagination_control.phtml', $this->urlParams
      ); ?>
-    <?php echo $this->jumpForm; ?>
+    <span class="forms">
+        <?php echo $this->jumpForm; ?>
+        <?php echo $this->searchForm; ?>
+    </span>
 </div>

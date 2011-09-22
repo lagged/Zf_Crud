@@ -113,26 +113,26 @@ class Search extends \Zend_Form
         $this->addDisplayGroup(
             array('search', 'exact', 'columns', 'submit'),
             'searchForm',
-            array('legend' => 'Search')
+            array('legend' => '')
         );
 
-        $searchForm = $this->getDisplayGroup('searchForm');
-        $searchForm->setDecorators(
+        $this->getDisplayGroup('searchForm')->setDecorators(
             array(
                 'FormElements',
                 'Fieldset',
                 array(
                     'HtmlTag',
                     array(
-                        'tag' => 'div',
-                        'class' => 'well'
+                        'tag'   => 'div',
+                        'class' => 'well',
+                        'style' => 'float:right; padding: 0 10px;'
                     )
                 )
             )
         );
 
-        $submit = $this->getElement('submit');
-        $submit->removeDecorator('Label')->setAttrib('class', 'primary');
+        $submit = $this->getElement('submit')->removeDecorator('Label')
+            ->setAttrib('class', 'primary');
 
     }
 
