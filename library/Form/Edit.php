@@ -92,9 +92,18 @@ class Edit extends \Zend_Form
             );
         };
 
+        $datetimeValidator = new \Zend_Validate_Date(
+            array('format' => 'yyyy-MM-dd HH:ii:ss')
+        );
+
+
         switch ($col['DATA_TYPE']) {
         case 'int':
             $element = new \Zend_Form_Element_Text($col['COLUMN_NAME']);
+            $element->setAttrib('size', $col['LENGTH'])
+                ->setAttrib('maxlength', $col['LENGTH'])
+                ->addValidator('Int');
+
             break;
         case 'varchar':
             $element = new \Zend_Form_Element_Text($col['COLUMN_NAME']);
@@ -105,13 +114,13 @@ class Edit extends \Zend_Form
             break;
         case 'date':
             $element = new \Zend_Form_Element_Text($col['COLUMN_NAME']);
-            $element->setAttrib('size', 10);
-            $element->setAttrib('maxlength', 10);
+            $element->setAttrib('size', 10)->setAttrib('maxlength', 10)
+                ->addValidator('Date');
             break;
         case 'datetime':
             $element = new \Zend_Form_Element_Text($col['COLUMN_NAME']);
-            $element->setAttrib('size', 19);
-            $element->setAttrib('maxlength', 19);
+            $element->setAttrib('size', 19)->setAttrib('maxlength', 19)
+                ->addValidator($datetimeValidator);
             break;
         case 'text':
             $element = new \Zend_Form_Element_Textarea($col['COLUMN_NAME']);
@@ -120,6 +129,7 @@ class Edit extends \Zend_Form
             break;
         case 'tinyint':
             $element = new \Zend_Form_Element_Checkbox($col['COLUMN_NAME']);
+            $element->setAttrib('size', 1)->setAttrib('max_length', 1);
             break;
         case 'enum':
             $element = new \Zend_Form_Element_Select($col['COLUMN_NAME']);
