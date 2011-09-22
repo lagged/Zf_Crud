@@ -57,6 +57,19 @@ class Search extends \Zend_Form
                 'label'    => 'Search',
                 'required' => true,
                 /*
+                'decorators' => array(
+                    'ViewHelper',
+                    'Errors',
+                    'Description',
+                    array('HtmlTag',array('tag' => 'span')),
+                    array('Label',array('tag' => 'span','class' =>'label')),
+                    array(
+                        array('row' => 'HtmlTag'),
+                        array('tag' => 'div', 'class', 'element')
+                    )
+                ),
+                */
+                /*
                 'validators' => array(
                     array(
                         'validator' => 'Alnum',
