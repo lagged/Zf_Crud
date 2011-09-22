@@ -96,7 +96,7 @@ class JumpTo extends \Zend_Form
                     array(
                         'tag'   => 'div',
                         'class' => 'well',
-                        'style' => 'float: left; padding: 0 10px;'
+                        'style' => 'float: left; padding: 0 20px;'
                     )
                 )
             )

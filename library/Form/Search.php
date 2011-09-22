@@ -125,7 +125,7 @@ class Search extends \Zend_Form
                     array(
                         'tag'   => 'div',
                         'class' => 'well',
-                        'style' => 'float:right; padding: 0 10px;'
+                        'style' => 'float:right; padding: 0 20px;'
                     )
                 )
             )
