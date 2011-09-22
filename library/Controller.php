@@ -135,11 +135,13 @@ abstract class Controller extends \Zend_Controller_Action
     {
         $form = $this->_getForm();
 
-        if ($this->_request->isPost() === true) {
-            // validate
-            // save
+        if ($this->_request->isPost()) {
+            if ($form->isValid($this->_request->getPost())) {
+                $this->_insert($form->getValues());
+                $this->_helper->redirector('list');
+                return;
+            }
         }
-
         $this->view->form = $form;
     }
 
@@ -279,6 +281,8 @@ abstract class Controller extends \Zend_Controller_Action
         if ($this->_request->isPost()) {
             if ($form->isValid($this->_request->getPost())) {
                 $this->_update($id, $form->getValues());
+                $this->_helper->redirector('list');
+                return;
             }
         }
         $record = $this->obj->find($id)->toArray();
@@ -287,6 +291,22 @@ abstract class Controller extends \Zend_Controller_Action
         $this->view->assign('pkValue', $id);
 
         return $this->render('crud/edit', null, true);
+    }
+
+    /**
+     * insert row into DB
+     *
+     * @param array $data ''
+     * @return void
+     * @throws Zend_Exception if row cannot be inserted
+     */
+    private function _insert($data)
+    {
+        try {
+            $this->obj->insert($data);
+        } catch (\Zend_Exception $e) {
+            throw $e;
+        }
     }
 
     /**
@@ -303,7 +323,6 @@ abstract class Controller extends \Zend_Controller_Action
         try {
             $stmt = $this->_getWhereStatement($id);
             $this->obj->update($data, $stmt);
-            $this->_helper->redirector('list');
         } catch (\Zend_Exception $e) {
             throw $e;
         }
