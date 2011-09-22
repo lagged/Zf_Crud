@@ -166,7 +166,7 @@ abstract class Controller extends \Zend_Controller_Action
             return $this->render('crud/delete', null, true); // confirm
         }
         try {
-            $stmt = $this->_getDeleteWhereStatement($id);
+            $stmt = $this->_getWhereStatement($id);
             $this->obj->delete($stmt);
             $this->_helper->redirector('list');
         } catch (\Zend_Exception $e) {
@@ -359,12 +359,12 @@ abstract class Controller extends \Zend_Controller_Action
     }
 
     /**
-     * _getDeleteWhereStatement
+     * _getWhereStatement
      *
      * @param mixed $id
      * @return string
      */
-    private function _getDeleteWhereStatement($id)
+    private function _getWhereStatement($id)
     {
         $id = ((int) $id == $id) ? (int) $id : $id;
         $where = $this->obj->getAdapter()
