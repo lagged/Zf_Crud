@@ -41,6 +41,21 @@ class Search extends \Zend_Form
      */
     public $columns;
 
+    /**
+     * var array $decorators
+     */
+    protected $decorators = array(
+        'ViewHelper',
+        'Errors',
+        'Description',
+        array('HtmlTag',array('tag' => 'span')),
+        array('Label',array('tag' => 'span','class' =>'label')),
+        array(
+            array('row' => 'HtmlTag'),
+            array('tag' => 'span', 'class' => 'inline')
+        )
+    );
+
 
     /**
      * init
@@ -54,21 +69,9 @@ class Search extends \Zend_Form
 
         $this->addElement(
             'text', 'search', array(
-                'label'    => 'Search',
-                'required' => true,
-                /*
-                'decorators' => array(
-                    'ViewHelper',
-                    'Errors',
-                    'Description',
-                    array('HtmlTag',array('tag' => 'span')),
-                    array('Label',array('tag' => 'span','class' =>'label')),
-                    array(
-                        array('row' => 'HtmlTag'),
-                        array('tag' => 'div', 'class', 'element')
-                    )
-                ),
-                */
+                'label'      => 'Term',
+                'required'   => true,
+                'decorators' => $this->decorators,
                 /*
                 'validators' => array(
                     array(
@@ -81,30 +84,58 @@ class Search extends \Zend_Form
 
         $this->addElement(
             'checkbox', 'exact', array(
-                'label'  => 'exact'
+                'label'      => 'exact',
+                'decorators' => $this->decorators
             )
         );
 
         $this->columns = new \Zend_Form_Element_Select('columns');
         $this->columns->setLabel('into')->setRequired(true)
-            ->setRegisterInArrayValidator(false);
+            ->setRegisterInArrayValidator(false)
+            ->setDecorators($this->decorators);
+
         $this->addElement($this->columns);
 
         $this->addElement(
             'submit', 'submit', array(
-                'ignore' => true,
-                'label'  => 'Go',
+                'ignore'     => true,
+                'label'      => 'Go',
+                'decorators' => $this->decorators
             )
         );
 
         /**
          * @desc Apply Twitter Bootstrap to all elements.
          */
+        /*
         \EasyBib_Form_Decorator::setFormDecorator(
             $this,
             \EasyBib_Form_Decorator::BOOTSTRAP,
             'submit'
         );
+        */
+        $this->addDisplayGroup(
+            array('search', 'exact', 'columns', 'submit'),
+            'searchForm',
+            array('legend' => 'Search')
+        );
+
+        $searchForm = $this->getDisplayGroup('searchForm');
+        $searchForm->setDecorators(
+            array(
+                'FormElements',
+                'Fieldset',
+                array(
+                    'HtmlTag',
+                    array(
+                        'tag' => 'div',
+                        'style' => 'width: 50%; float: left;',
+                        'class' => 'inline-inputs'
+                    )
+                )
+            )
+        );
+
     }
 
 }
