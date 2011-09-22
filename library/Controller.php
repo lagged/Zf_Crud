@@ -47,6 +47,11 @@ abstract class Controller extends \Zend_Controller_Action
     protected $obj;
 
     /**
+     * @var Zend_Session_Namespace $session
+     */
+    protected $session;
+
+    /**
      * @var array $hidden Hidden columns
      * @see self::init()
      */
@@ -84,6 +89,7 @@ abstract class Controller extends \Zend_Controller_Action
      */
     protected $title = 'CRUD INTERFACE';
 
+
     /**
      * Init
      *
@@ -102,6 +108,9 @@ abstract class Controller extends \Zend_Controller_Action
         if (!($this->obj instanceof \Zend_Db_Table_Abstract)) {
             throw new \LogicException("The model must extend Zend_Db_Table_Abstract");
         }
+
+        $this->_initSession();
+
         $this->view->headLink()->appendStylesheet(
             'http://twitter.github.com/bootstrap/assets/css/bootstrap-1.2.0.min.css'
         );
@@ -126,7 +135,6 @@ abstract class Controller extends \Zend_Controller_Action
     /**
      * Create!
      *
-     * GET: form
      * POST: create
      *
      * @return void
@@ -213,6 +221,8 @@ abstract class Controller extends \Zend_Controller_Action
      */
     public function listAction()
     {
+        $this->_checkSession($this->_request);
+
         $offset    = null;
         $page      = abs($this->_getParam('p', 1));
         $page      = ((int) $page == 0) ? 1 : $page;
@@ -345,6 +355,8 @@ abstract class Controller extends \Zend_Controller_Action
 
     /**
      * Create the paginator for {@link self::listAction()}.
+     * Try to get a WHERE statement from the form ($this->where), otherwise
+     * see if an older one is still in SESSION.
      *
      * @return \Zend_Paginator
      * @uses   self::$dbAdapter
@@ -355,8 +367,11 @@ abstract class Controller extends \Zend_Controller_Action
         $db        = \Zend_Registry::get($this->dbAdapter);
         $table     = $this->obj->info('name');
         $select    = $db->select()->from($table);
+
         if ($this->where) {
             $select->where($this->where);
+        } else if (isset($this->session->query)) {
+            $select->where($this->session->query);
         }
         if ($this->order && $this->orderType) {
             $select->order($this->order . ' ' . $this->orderType);
@@ -428,7 +443,6 @@ abstract class Controller extends \Zend_Controller_Action
      * _assignSearchWhereQuery
      *
      * @param array $data ''
-     *
      * @return void
      */
     private function _assignSearchWhereQuery($data)
@@ -438,8 +452,36 @@ abstract class Controller extends \Zend_Controller_Action
         $query  = ($data['exact'])
             ? sprintf("%s = '%s'", $column, $search)
             : sprintf("%s LIKE '%%%s%%'", $column, $search);
-
         $this->where = $query;
+        $this->session->query = $query;
+    }
+
+    /**
+     * _initSession
+     *
+     * @return void
+     */
+    private function _initSession()
+    {
+        \Zend_Session::start();
+        if (! $this->session) {
+            $this->session = new \Zend_Session_Namespace('crud');
+        }
+    }
+
+    /**
+     * _checkSession If $_GET['reset'] is set, reset the SESSION_NAMESPACE
+     *
+     * @param Zend_Controller_Request_Http $req
+     * @return void
+     */
+    private function _checkSession($req)
+    {
+        if ($req->isGet()
+            && (null !== ($reset = $this->_getParam('reset')))
+        ) {
+            $this->session->query = null;
+        }
     }
 
 }
