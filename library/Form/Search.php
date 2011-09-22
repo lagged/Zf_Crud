@@ -48,11 +48,17 @@ class Search extends \Zend_Form
         'ViewHelper',
         'Errors',
         'Description',
-        array('HtmlTag',array('tag' => 'span')),
-        array('Label',array('tag' => 'span','class' =>'label')),
+        array('HtmlTag', array('tag' => 'span')),
+        array(
+            'Label',
+            array(
+                'tag' => 'span', 'class' =>'label', 'style' => 'float: none;')
+        ),
         array(
             array('row' => 'HtmlTag'),
-            array('tag' => 'span', 'class' => 'inline')
+            array(
+                'tag' => 'span', 'class' => 'inline', 'style' => 'margin-left:10px;'
+            )
         )
     );
 
@@ -99,21 +105,11 @@ class Search extends \Zend_Form
         $this->addElement(
             'submit', 'submit', array(
                 'ignore'     => true,
-                'label'      => 'Go',
+                'label'      => 'Search',
                 'decorators' => $this->decorators
             )
         );
 
-        /**
-         * @desc Apply Twitter Bootstrap to all elements.
-         */
-        /*
-        \EasyBib_Form_Decorator::setFormDecorator(
-            $this,
-            \EasyBib_Form_Decorator::BOOTSTRAP,
-            'submit'
-        );
-        */
         $this->addDisplayGroup(
             array('search', 'exact', 'columns', 'submit'),
             'searchForm',
@@ -129,12 +125,14 @@ class Search extends \Zend_Form
                     'HtmlTag',
                     array(
                         'tag' => 'div',
-                        'style' => 'width: 50%; float: left;',
-                        'class' => 'inline-inputs'
+                        'class' => 'well'
                     )
                 )
             )
         );
+
+        $submit = $this->getElement('submit');
+        $submit->removeDecorator('Label')->setAttrib('class', 'primary');
 
     }
 
