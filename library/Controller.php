@@ -11,6 +11,7 @@
 namespace Lagged\Zf\Crud;
 use Lagged\Zf\Crud\Form\Edit    as Edit;
 use Lagged\Zf\Crud\Form\Confirm as Confirm;
+use Lagged\Zf\Crud\Form\Search  as Search;
 use Lagged\Zf\Crud\Form\JumpTo  as JumpTo;
 
 /**
@@ -50,6 +51,12 @@ abstract class Controller extends \Zend_Controller_Action
      * @see self::init()
      */
     protected $hidden = array();
+
+    /**
+     * @var string $where Mysql WHERE query for search form
+     * @see listAction
+     */
+    protected $where;
 
     /**
      * @var int $count Maximum count when fetching all rows
@@ -159,7 +166,7 @@ abstract class Controller extends \Zend_Controller_Action
             return $this->render('crud/delete', null, true); // confirm
         }
         try {
-            $stmt = $this->_getWhereStatement($id);
+            $stmt = $this->_getDeleteWhereStatement($id);
             $this->obj->delete($stmt);
             $this->_helper->redirector('list');
         } catch (\Zend_Exception $e) {
@@ -200,6 +207,7 @@ abstract class Controller extends \Zend_Controller_Action
      * Display a list of entries in a table.
      *
      * @return void
+     * @todo: refactor
      */
     public function listAction()
     {
@@ -209,7 +217,18 @@ abstract class Controller extends \Zend_Controller_Action
         $offset    = ((int) $page - 1) * $this->count;
         $order     = $this->_getParam('o');
         $orderType = $this->_getParam('ot');
-        if ($order && $orderType) {
+
+        $searchForm = new Search();
+        $searchForm->columns->addMultiOptions($this->cols);
+
+        if ($this->_request->isPost()) {
+            if ($searchForm->isValid($this->_request->getPost())) {
+                $data = $searchForm->getValues();
+                $this->_assignSearchWhereQuery($data);
+            }
+        }
+
+        if (isset($order) && isset($orderType)) {
             $this->_assignOrderBy($order, $orderType);
         }
 
@@ -217,11 +236,6 @@ abstract class Controller extends \Zend_Controller_Action
         $paginator->setCurrentPageNumber($page);
 
         $this->view->paginator = $paginator;
-
-        $data = $this->obj->fetchAll(
-            null, null, $this->count, $offset
-        )->toArray();
-        $this->view->assign('data', $data);
 
         if ($this->order) {
             $this->view->order = $this->order;
@@ -239,8 +253,11 @@ abstract class Controller extends \Zend_Controller_Action
             )
         );
 
-        $form = new JumpTo();
-        $this->view->form = $form->setAction($url);
+        $searchForm->columns->addMultiOptions($this->cols);
+        $this->view->searchForm = $searchForm->setAction($this->view->url());
+
+        $jumpForm = new JumpTo();
+        $this->view->jumpForm = $jumpForm->setAction($url);
         return $this->render('crud/list', null, true);
     }
 
@@ -274,7 +291,12 @@ abstract class Controller extends \Zend_Controller_Action
     }
 
     /**
+     * Update DB row with data
      *
+     * @param mixed $id   ''
+     * @param array $data ''
+     * @return void
+     * @throws Zend_Exception if row cannot be updated
      */
     private function _update($id, $data)
     {
@@ -315,9 +337,13 @@ abstract class Controller extends \Zend_Controller_Action
         $db        = \Zend_Registry::get($this->dbAdapter);
         $table     = $this->obj->info('name');
         $select    = $db->select()->from($table);
+        if ($this->where) {
+            $select->where($this->where);
+        }
         if ($this->order && $this->orderType) {
             $select->order($this->order . ' ' . $this->orderType);
         }
+
         $paginator = \Zend_Paginator::factory($select);
         $paginator->setItemCountPerPage($this->count);
 
@@ -332,11 +358,18 @@ abstract class Controller extends \Zend_Controller_Action
         return $this->obj->info('name');
     }
 
-    private function _getWhereStatement($id)
+    /**
+     * _getDeleteWhereStatement
+     *
+     * @param mixed $id
+     * @return string
+     */
+    private function _getDeleteWhereStatement($id)
     {
         $id = ((int) $id == $id) ? (int) $id : $id;
         $where = $this->obj->getAdapter()
             ->quoteInto($this->primaryKey[0] . ' = ?', $id);
+
         return $where;
     }
 
@@ -371,6 +404,24 @@ abstract class Controller extends \Zend_Controller_Action
         return ($this->orderType == 'ASC')
             ? 'DESC'
             : 'ASC';
+    }
+
+    /**
+     * _assignSearchWhereQuery
+     *
+     * @param array $data ''
+     *
+     * @return void
+     */
+    private function _assignSearchWhereQuery($data)
+    {
+        $search = $data['search'];
+        $column = $this->cols[$data['columns']];
+        $query  = ($data['exact'])
+            ? sprintf("%s = '%s'", $column, $search)
+            : sprintf("%s LIKE '%%%s%%'", $column, $search);
+
+        $this->where = $query;
     }
 
 }

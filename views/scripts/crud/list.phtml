@@ -1,6 +1,7 @@
 <div class="container">
     <div class="page-header">
         <h1><?php echo $this->ui_title; ?></h1>
+ <?php echo $this->searchForm; ?>
     </div>
 
     <table class="zebra-striped">
@@ -37,5 +38,5 @@
      echo $this->paginationControl(
             $this->paginator, 'Sliding', 'crud/pagination_control.phtml', $this->urlParams
      ); ?>
-    <?php echo $this->form; ?>
+    <?php echo $this->jumpForm; ?>
 </div>
