@@ -264,7 +264,6 @@ abstract class Controller extends \Zend_Controller_Action
     /**
      * edit
      *
-     * GET: form
      * POST: update
      *
      * @return void
@@ -272,13 +271,13 @@ abstract class Controller extends \Zend_Controller_Action
     public function editAction()
     {
         if (null === ($id = $this->_getParam('id'))) {
-            throw new \Runtime_Exception('bouh');
+            throw new \Runtime_Exception('invalid id');
         }
 
         $form = $this->_getForm();
 
-        if ($this->_request->isGet()) {
-            if ($form->isValid($this->_request->getParams())) {
+        if ($this->_request->isPost()) {
+            if ($form->isValid($this->_request->getPost())) {
                 $this->_update($id, $form->getValues());
             }
         }
