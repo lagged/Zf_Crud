@@ -215,6 +215,7 @@ abstract class Controller extends \Zend_Controller_Action
 
     /**
      * Display a list of entries in a table.
+     * The POST form here is always SearchForm
      *
      * @return void
      * @todo: refactor
@@ -257,19 +258,19 @@ abstract class Controller extends \Zend_Controller_Action
         $query = $this->_request->getQuery();
         $this->view->assign('urlParams', array('params' => $query));
 
-        $url = $this->view->BetterUrl(
-            array(
-                'action' => 'list',
-                'o'      => $this->order,
-                'ot'     => $this->orderType
-            )
-        );
+        $url = array('action' => 'jump');
+        if ($this->order) {
+            $url['o']  = $this->order;
+            $url['ot'] = $this->orderType;
+        }
+        $url = $this->view->BetterUrl($url);
+
+        $jumpForm = new JumpTo();
+        $this->view->jumpForm = $jumpForm->setAction($url);
 
         $searchForm->columns->addMultiOptions($this->cols);
         $this->view->searchForm = $searchForm->setAction($this->view->url());
 
-        $jumpForm = new JumpTo();
-        $this->view->jumpForm = $jumpForm->setAction($url);
         return $this->render('crud/list', null, true);
     }
 
@@ -301,6 +302,32 @@ abstract class Controller extends \Zend_Controller_Action
         $this->view->assign('pkValue', $id);
 
         return $this->render('crud/edit', null, true);
+    }
+
+    /**
+     * jumpAction
+     *
+     * @return void
+     */
+    public function jumpAction()
+    {
+        $form = new JumpTo();
+        $o    = $this->_getParam('o');
+        $ot   = $this->_getParam('ot');
+        $params = $o
+            ? array('action' => 'list', 'o' => $o, 'ot' => $ot)
+            : array('action' => 'list');
+
+        if ($this->_request->isPost()) {
+            if ($form->isValid($this->_request->getPost())) {
+                $data = $form->getValues();
+                $params['p'] = $data['p'];
+                $url = $this->view->BetterUrl($params);
+                $this->_helper->redirector->gotoUrl($url);
+            } else {
+                $this->_helper->redirector('list');
+            }
+        }
     }
 
     /**
