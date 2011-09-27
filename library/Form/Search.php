@@ -72,6 +72,7 @@ class Search extends \Zend_Form
     public function init()
     {
         $this->setMethod('post');
+        $this->setAttrib('id', 'search');
 
         $this->addElement(
             'text', 'search', array(

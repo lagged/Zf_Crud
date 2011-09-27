@@ -64,12 +64,14 @@ class JumpTo extends \Zend_Form
     public function init()
     {
         $this->setMethod('post');
+        $this->setAttrib('id', 'jump');
 
         $this->addElement(
             'text', 'p', array(
                 'label'      => 'Jump to page',
                 'required'   => true,
-                'decorators' => $this->decorators
+                'decorators' => $this->decorators,
+                'validators' => array('Int')
             )
         );
 
