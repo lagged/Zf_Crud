@@ -47,6 +47,12 @@ abstract class Controller extends \Zend_Controller_Action
     protected $obj;
 
     /**
+     * @var string
+     * @see self::init()
+     */
+    protected $tableName;
+
+    /**
      * @var Zend_Session_Namespace $session
      */
     protected $session;
@@ -104,7 +110,11 @@ abstract class Controller extends \Zend_Controller_Action
             throw new \RuntimeException("You need to define self::model");
         }
 
-        $this->obj = new $this->model(array('db' => $this->dbAdapter));
+        $modelOptions = array('db' => $this->dbAdapter);
+        if ($this->tableName) {
+            $modelOptions['name'] = $this->tableName;
+        }
+        $this->obj = new $this->model($modelOptions);
         if (!($this->obj instanceof \Zend_Db_Table_Abstract)) {
             throw new \LogicException("The model must extend Zend_Db_Table_Abstract");
         }
