@@ -233,7 +233,9 @@ abstract class Controller extends \Zend_Controller_Action
     public function listAction()
     {
         $this->_checkSession($this->_request);
-
+        if (null !== ($table = $this->_getParam('table'))) {
+            $this->tableName = $table;
+        }
         $offset    = null;
         $page      = abs($this->_getParam('p', 1));
         $page      = ((int) $page == 0) ? 1 : $page;
