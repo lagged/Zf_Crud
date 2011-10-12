@@ -110,14 +110,7 @@ abstract class Controller extends \Zend_Controller_Action
             throw new \RuntimeException("You need to define self::model");
         }
 
-        $modelOptions = array('db' => $this->dbAdapter);
-        if ($this->tableName) {
-            $modelOptions['name'] = $this->tableName;
-        }
-        $this->obj = new $this->model($modelOptions);
-        if (!($this->obj instanceof \Zend_Db_Table_Abstract)) {
-            throw new \LogicException("The model must extend Zend_Db_Table_Abstract");
-        }
+        $this->_initModel();
 
         $this->_initSession();
 
@@ -235,6 +228,7 @@ abstract class Controller extends \Zend_Controller_Action
         $this->_checkSession($this->_request);
         if (null !== ($table = $this->_getParam('table'))) {
             $this->tableName = $table;
+            $this->_initModel();
         }
         $offset    = null;
         $page      = abs($this->_getParam('p', 1));
@@ -520,6 +514,26 @@ abstract class Controller extends \Zend_Controller_Action
             && (null !== ($reset = $this->_getParam('reset')))
         ) {
             $this->session->query = null;
+        }
+    }
+
+    /**
+     * _initModel
+     *
+     * @return void
+     * @throws LogicException if the model type is not Zend_Db_Table_Abstract
+     */
+    private function _initModel()
+    {
+        $options = array('db' => $this->dbAdapter);
+        if ($this->tableName) {
+            $options['name'] = $this->tableName;
+        }
+        $this->obj = new $this->model($options);
+        if (!($this->obj instanceof \Zend_Db_Table_Abstract)) {
+            throw new \LogicException(
+                'The model must extend Zend_Db_Table_Abstract'
+            );
         }
     }
 
