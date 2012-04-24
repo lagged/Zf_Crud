@@ -31,7 +31,7 @@ abstract class Controller extends \Zend_Controller_Action
     protected $cols;
 
     /**
-     * @var string $dbAdapter Name of Zend_Registry key for DbAdapter
+     * @var string $dbAdapter Name of \Zend_Registry key for DbAdapter
      */
     protected $dbAdapter = 'dbAdapter';
 
@@ -41,7 +41,7 @@ abstract class Controller extends \Zend_Controller_Action
     protected $model;
 
     /**
-     * @var Zend_Db_Table_Abstract
+     * @var \Zend_Db_Table_Abstract
      * @see self::init()
      */
     protected $obj;
@@ -53,7 +53,7 @@ abstract class Controller extends \Zend_Controller_Action
     protected $tableName;
 
     /**
-     * @var Zend_Session_Namespace $session
+     * @var \Zend_Session_Namespace $session
      */
     protected $session;
 
