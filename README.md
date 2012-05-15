@@ -8,6 +8,10 @@ WORK IN PROGRESS
 
 [deco]: https://github.com/easybib/EasyBib_Form_Decorator#readme
 
+### Installation
+
+Add `lagged/Zf_Crud` to your `composer.json`!
+
 ### Usage
 
 ...

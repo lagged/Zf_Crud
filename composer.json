@@ -24,9 +24,14 @@
                     "type": "zip"
                 }
             }
-        }
+        },
+        {
+            "type": "pear",
+            "url": "http://easybib.github.com/pear"
+        }    
     ],
     "require-dev": {
-        "zendframework/zendframework": "1.11.11"
+        "zendframework/zendframework": "1.11.11",
+        "pear-easybib/EasyBib_Form_Decorator": "0.2.0"
     }
 }
