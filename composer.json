@@ -1,0 +1,32 @@
+{
+    "name": "lagged/Zf_Crud",
+    "description": "Crud controller for ZendFramework(1)",
+    "license": "BSD-3-Clause",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Till Klampaeckel",
+            "email": "till@lagged.biz"
+        },
+        {
+            "name": "Yvan Volochine",
+            "homepage": "https://github.com/gusano"
+        }
+    ],
+    "repositories": [
+        {
+            "type": "package",
+            "package": {
+                "name": "zendframework/zendframework",
+                "version": "1.11.11",
+                "dist": {
+                    "url": "http://framework.zend.com/releases/ZendFramework-1.11.11/ZendFramework-1.11.11-minimal.zip",
+                    "type": "zip"
+                }
+            }
+        }
+    ],
+    "require-dev": {
+        "zendframework/zendframework": "1.11.11"
+    }
+}
