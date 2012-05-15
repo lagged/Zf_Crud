@@ -1,0 +1,23 @@
+{
+    "hash": "099be4dce05766217ffab5ae7c6e4748",
+    "packages": [
+
+    ],
+    "packages-dev": [
+        {
+            "package": "pear-easybib/EasyBib_Form_Decorator",
+            "version": "0.2.0"
+        },
+        {
+            "package": "zendframework/zendframework",
+            "version": "1.11.11"
+        }
+    ],
+    "aliases": [
+
+    ],
+    "minimum-stability": "dev",
+    "stability-flags": [
+
+    ]
+}
