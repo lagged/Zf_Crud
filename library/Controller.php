@@ -168,7 +168,7 @@ abstract class Controller extends \Zend_Controller_Action
      */
     public function deleteAction()
     {
-        if (null === ($id = $this->_getParam('id'))) {
+        if (null === ($id = $this->_getParam('primary-key'))) {
             throw new \InvalidArgumentException("ID is not set.");
         }
 
@@ -206,21 +206,10 @@ abstract class Controller extends \Zend_Controller_Action
      */
     public function readAction()
     {
-        //$pkey = $this->primaryKey[0];
-
         if (null === ($id = $this->_getParam('primary-key'))) {
             return $this->_helper->redirector('list');
         }
-
-        $primaryKey = unserialize($id);
-
-        $record = call_user_func_array(
-            array($this->obj, 'find'),
-            array_values($primaryKey)
-        )->toArray();
-
-        //$this->obj->find($id)->toArray();
-
+        $record = $this->getRecord($id);
         $this->view->assign('record', $record[0]);
         $this->view->assign('pkValue', $id);
         return $this->render('crud/detail', null, true);
@@ -299,7 +288,7 @@ abstract class Controller extends \Zend_Controller_Action
      */
     public function editAction()
     {
-        if (null === ($id = $this->_getParam('id'))) {
+        if (null === ($id = $this->_getParam('primary-key'))) {
             throw new \Runtime_Exception('invalid id');
         }
 
@@ -312,7 +301,7 @@ abstract class Controller extends \Zend_Controller_Action
                 return;
             }
         }
-        $record = $this->obj->find($id)->toArray();
+        $record = $this->getRecord($id);
         $form->populate($record[0]);
         $this->view->assign('form', $form);
         $this->view->assign('pkValue', $id);
@@ -545,6 +534,25 @@ abstract class Controller extends \Zend_Controller_Action
                 'The model must extend Zend_Db_Table_Abstract'
             );
         }
+    }
+
+    /**
+     * Get Record out of primary-key
+     * (serialized array)
+     *
+     * @param  string $id Serialized id string
+     * @return Zend_Db_Table_Rowset_Abstract
+     */
+    protected function getRecord($id)
+    {
+        $primaryKey = unserialize($id);
+
+        $record = call_user_func_array(
+            array($this->obj, 'find'),
+            array_values($primaryKey)
+        )->toArray();
+
+        return $record;
     }
 
 }
