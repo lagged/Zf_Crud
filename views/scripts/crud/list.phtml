@@ -18,11 +18,11 @@
     <tbody>
 <?php foreach ($this->paginator as $row): ?>
         <tr>
-<?php $_primary = null; ?>
+<?php $_primary = array(); ?>
 <?php foreach ($row as $col => $val): ?>
     <?php
-    if ($col == $this->primary[0]) {
-        $_primary = $val;
+    if (in_array($col, $this->primary)) {
+        $_primary[$col] = $val;
     }
     ?>
     <?php if (in_array($col, $this->cols)): ?>
@@ -30,7 +30,7 @@
     <?php endif; ?>
 <?php endforeach; ?>
             <td>
-                <a href="<?php echo $this->BetterUrl(array('action' => 'read', $this->primary[0] => $_primary)); ?>">Detail</a>
+                <a href="<?php echo $this->BetterUrl(array('action' => 'read', 'primary-key' => serialize($_primary))); ?>">Detail</a>
             </td>
         </tr>
 <?php endforeach; ?>

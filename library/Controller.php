@@ -206,13 +206,21 @@ abstract class Controller extends \Zend_Controller_Action
      */
     public function readAction()
     {
-        $pkey = $this->primaryKey[0];
+        //$pkey = $this->primaryKey[0];
 
-        if (null === ($id = $this->_getParam($pkey))) {
+        if (null === ($id = $this->_getParam('primary-key'))) {
             return $this->_helper->redirector('list');
         }
 
-        $record = $this->obj->find($id)->toArray();
+        $primaryKey = unserialize($id);
+
+        $record = call_user_func_array(
+            array($this->obj, 'find'),
+            array_values($primaryKey)
+        )->toArray();
+
+        //$this->obj->find($id)->toArray();
+
         $this->view->assign('record', $record[0]);
         $this->view->assign('pkValue', $id);
         return $this->render('crud/detail', null, true);
