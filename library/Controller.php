@@ -275,10 +275,6 @@ abstract class Controller extends \Zend_Controller_Action
             $this->_assignOrderBy($order, $orderType);
         }
 
-        if (!empty($this->bulkDelete) && $this->_request->isPost()) {
-            $this->bulkDelete($this->_request->getPost('bulk'));
-        }
-
         $paginator = $this->_getPaginator();
         $paginator->setCurrentPageNumber($page);
 
