@@ -35,21 +35,14 @@ namespace Lagged\Zf\Crud\Form;
  */
 class Edit extends \Zend_Form
 {
+    /**
+     * @var mixed (array|null)
+     */
     protected $primaryKeys;
 
     public function __construct($primaryKeys)
     {
         $this->primaryKeys = $primaryKeys;
-    }
-
-    /**
-     * init
-     *
-     * @return void
-     */
-    public function init()
-    {
-        $this->setMethod('post');
     }
 
     /**
@@ -78,9 +71,13 @@ class Edit extends \Zend_Form
             )
         );
 
-        /**
-         * @desc Apply Twitter Bootstrap to all elements.
-         */
+        $elements = $this->getElements();
+        $this->addDisplayGroup($elements, 'edit', array('legend' => 'Edit Entry'));
+
+
+        $this->setAttrib('class', 'form-horizontal');
+        $this->setMethod('post');
+
         \EasyBib_Form_Decorator::setFormDecorator(
             $this,
             \EasyBib_Form_Decorator::BOOTSTRAP,

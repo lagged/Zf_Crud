@@ -36,27 +36,6 @@ namespace Lagged\Zf\Crud\Form;
 class JumpTo extends \Zend_Form
 {
     /**
-     * @var Zend_Form_Decorator $decorators
-     */
-    protected $decorators = array(
-        'ViewHelper',
-        'Errors',
-        'Description',
-        array('HtmlTag', array('tag' => 'span')),
-        array(
-            'Label',
-            array(
-                'tag' => 'span', 'class' =>'label', 'style' => 'float: none;')
-        ),
-        array(
-            array('row' => 'HtmlTag'),
-            array(
-                'tag' => 'span', 'class' => 'inline', 'style' => 'margin-left:10px;'
-            )
-        )
-    );
-
-    /**
      * init
      *
      * @return void
@@ -65,12 +44,12 @@ class JumpTo extends \Zend_Form
     {
         $this->setMethod('post');
         $this->setAttrib('id', 'jump');
+        $this->setAttrib('class', 'form-inline');
 
         $this->addElement(
             'text', 'p', array(
                 'label'      => 'Jump to page',
                 'required'   => true,
-                'decorators' => $this->decorators,
                 'validators' => array('Int')
             )
         );
@@ -78,8 +57,7 @@ class JumpTo extends \Zend_Form
         $this->addElement(
             'submit', 'submit', array(
                 'ignore'     => true,
-                'label'      => 'Go',
-                'decorators' => $this->decorators
+                'label'      => 'Go'
             )
         );
 
@@ -89,26 +67,16 @@ class JumpTo extends \Zend_Form
             array('legend' => '')
         );
 
-        $this->getDisplayGroup('jumpForm')->setDecorators(
-            array(
-                'FormElements',
-                'Fieldset',
-                array(
-                    'HtmlTag',
-                    array(
-                        'tag'   => 'div',
-                        'class' => 'well',
-                        'style' => 'float: left; padding: 0 20px;'
-                    )
-                )
-            )
+        \EasyBib_Form_Decorator::setFormDecorator(
+            $this,
+            \EasyBib_Form_Decorator::BOOTSTRAP_MINIMAL,
+            'submit',
+            'cancel'
         );
 
-
-        $this->getElement('submit')->removeDecorator('Label')
-            ->setAttrib('class', 'primary');
-
-        $this->getElement('p')->setAttrib('class', 'mini');
+        $this->getElement('submit')->setAttrib('class', 'btn btn-primary btn-mini');
+        $this->getElement('p')->setAttrib('class', 'input-mini');
+        $this->setAttrib('style', 'margin: 0;');
     }
 
 }
