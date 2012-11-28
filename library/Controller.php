@@ -180,13 +180,19 @@ abstract class Controller extends \Zend_Controller_Action
             $this->view->assign('form', $form);
             return $this->render('crud/delete', null, true); // confirm
         }
-        try {
-            $stmt = $this->_getWhereStatement($id);
-            $this->obj->delete($stmt);
-            $this->_helper->redirector('list');
-        } catch (\Zend_Exception $e) {
-            throw $e;
+        if ($this->_request->isPost() === true &&
+            $this->_request->getPost('confirm') == 'yes')
+        {
+            try {
+                $stmt = $this->_getWhereStatement($id);
+                $this->obj->delete($stmt);
+                return $this->_helper->redirector('list');
+            } catch (\Zend_Exception $e) {
+                throw $e;
+            }
         }
+        $this->view->assign('form', $form);
+        return $this->render('crud/delete', null, true);
     }
 
     /**
