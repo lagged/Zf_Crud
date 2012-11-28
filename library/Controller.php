@@ -95,6 +95,11 @@ abstract class Controller extends \Zend_Controller_Action
      */
     protected $title = 'CRUD INTERFACE';
 
+    /**
+     * @var bool $bulkDelete Show delete checkboxes in list view
+     */
+    protected $bulkDelete = false;
+
 
     /**
      * Init
@@ -257,6 +262,10 @@ abstract class Controller extends \Zend_Controller_Action
             $this->_assignOrderBy($order, $orderType);
         }
 
+        if (!empty($this->bulkDelete) && $this->_request->isPost()) {
+            $this->bulkDelete($this->_request->getPost('bulk'));
+        }
+
         $paginator = $this->_getPaginator();
         $paginator->setCurrentPageNumber($page);
 
@@ -282,6 +291,8 @@ abstract class Controller extends \Zend_Controller_Action
 
         $searchForm->columns->addMultiOptions($this->cols);
         $this->view->searchForm = $searchForm->setAction($this->view->url());
+
+        $this->view->bulkDelete = $this->bulkDelete;
 
         return $this->render('crud/list', null, true);
     }
@@ -566,6 +577,25 @@ abstract class Controller extends \Zend_Controller_Action
         )->toArray();
 
         return $record;
+    }
+
+    /**
+     * Bulk Delete entries
+     *
+     * @param  array With serialized ids
+     * @return bool
+     */
+    protected function bulkDelete(array $bulkIds)
+    {
+        if (empty($bulkIds)) {
+            return false;
+        }
+        foreach ($bulkIds as $id) {
+            $primaryKey = urldecode($id);
+            $where      = $this->_getWhereStatement($primaryKey);
+            $this->obj->delete($where);
+        }
+        return true;
     }
 
 }
