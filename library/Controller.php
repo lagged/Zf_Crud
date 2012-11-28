@@ -156,6 +156,7 @@ abstract class Controller extends \Zend_Controller_Action
             }
         }
         $this->view->form = $form;
+        return $this->render('crud/create', null, true);
     }
 
     /**
