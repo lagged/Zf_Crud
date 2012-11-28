@@ -298,6 +298,7 @@ abstract class Controller extends \Zend_Controller_Action
             throw new \Runtime_Exception('invalid id');
         }
 
+        $record = $this->getRecord($id);
         $form = $this->_getForm();
 
         if ($this->_request->isPost()) {
@@ -367,7 +368,6 @@ abstract class Controller extends \Zend_Controller_Action
      */
     private function _update($id, $data)
     {
-        $id = ((int) $id == $id) ? (int) $id : $id;
         try {
             $stmt = $this->_getWhereStatement($id);
             $this->obj->update($data, $stmt);
@@ -432,15 +432,21 @@ abstract class Controller extends \Zend_Controller_Action
     /**
      * _getWhereStatement
      *
-     * @param mixed $id
-     * @return string
+     * @param  mixed $id
+     * @return mixed (string/array)
      */
     private function _getWhereStatement($id)
     {
-        $id = ((int) $id == $id) ? (int) $id : $id;
-        $where = $this->obj->getAdapter()
-            ->quoteInto($this->primaryKey[0] . ' = ?', $id);
-
+        if (is_numeric($id)) {
+            $where = $this->obj->getAdapter()
+                ->quoteInto($this->primaryKey[0] . ' = ?', $id);
+        } else {
+            $id = unserialize($id);
+            foreach ($id as $key => $value) {
+                $where[] = $this->obj->getAdapter()
+                    ->quoteInto($key . ' = ?', $value);
+            }
+        }
         return $where;
     }
 
