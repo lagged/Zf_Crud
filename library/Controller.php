@@ -149,8 +149,9 @@ abstract class Controller extends \Zend_Controller_Action
      */
     public function bulkAction()
     {
-        if (!empty($this->bulkDelete) && $this->_request->isPost()) {
-            $this->bulkDelete($this->_request->getPost('bulk'));
+        $bulkPost = $this->_request->getPost('bulk');
+        if (!empty($this->bulkDelete) && $this->_request->isPost() && is_array($bulkPost)) {
+            $this->bulkDelete($bulkPost);
         }
         return $this->_helper->redirector('list');
     }
