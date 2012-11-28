@@ -384,7 +384,7 @@ abstract class Controller extends \Zend_Controller_Action
      */
     private function _getForm()
     {
-        $form = new Edit();
+        $form = new Edit($this->primaryKey);
         $form->generate(
             $this->obj->info(\Zend_Db_Table_Abstract::METADATA)
         );

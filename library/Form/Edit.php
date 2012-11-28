@@ -35,6 +35,13 @@ namespace Lagged\Zf\Crud\Form;
  */
 class Edit extends \Zend_Form
 {
+    protected $primaryKeys;
+
+    public function __construct($primaryKeys)
+    {
+        $this->primaryKeys = $primaryKeys;
+    }
+
     /**
      * init
      *
@@ -57,7 +64,9 @@ class Edit extends \Zend_Form
     public function generate(array $cols)
     {
         foreach ($cols as $col) {
-            if (! $col['PRIMARY']) {
+            if (count($this->primaryKeys) > 1) {
+                $this->_createElement($col);
+            } else if (count($this->primaryKeys) == 1 && !$col['PRIMARY']) {
                 $this->_createElement($col);
             }
         }
