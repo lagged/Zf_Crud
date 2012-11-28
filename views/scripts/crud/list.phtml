@@ -11,17 +11,17 @@
         </a>
     </p>
 
-    <form action="<?php echo $this->BetterUrl(array('action' => 'list')); ?>" method="post">
+    <form action="<?php echo $this->BetterUrl(array('action' => 'bulk')); ?>" method="post">
     <table class="table table.striped">
     <thead>
         <tr>
-<?php if (!empty($this->bulkDelete)): ?>
-<?php endif; ?>
 <?php foreach ($this->cols as $column): ?>
             <th><a href="<?php $ot = ($column == $this->order) ? $this->otNew : 'ASC'; echo $this->url(array_merge($this->urlParams, array('o' => $column, 'ot' => $ot))); ?>"><?php echo $column; ?></a></th>
 <?php endforeach; ?>
             <th>actions</th>
+<?php if (!empty($this->bulkDelete)): ?>
             <th>delete</th>
+<?php endif; ?>
         </tr>
     </thead>
     <tbody>
