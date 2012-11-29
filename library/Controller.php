@@ -95,6 +95,11 @@ abstract class Controller extends \Zend_Controller_Action
      */
     protected $title = 'CRUD INTERFACE';
 
+    /**
+     * @var bool $bulkDelete Show delete checkboxes in list view
+     */
+    protected $bulkDelete = false;
+
 
     /**
      * Init
@@ -138,6 +143,20 @@ abstract class Controller extends \Zend_Controller_Action
     }
 
     /**
+     * Fire bulk actions (bulk delete)
+     *
+     * @return void
+     */
+    public function bulkAction()
+    {
+        $bulkPost = $this->_request->getPost('bulk');
+        if (true === $this->bulkDelete && $this->_request->isPost() && is_array($bulkPost)) {
+            $this->bulkDelete($bulkPost);
+        }
+        return $this->_helper->redirector('list');
+    }
+
+    /**
      * Create!
      *
      * POST: create
@@ -156,6 +175,7 @@ abstract class Controller extends \Zend_Controller_Action
             }
         }
         $this->view->form = $form;
+        return $this->render('crud/create', null, true);
     }
 
     /**
@@ -168,7 +188,7 @@ abstract class Controller extends \Zend_Controller_Action
      */
     public function deleteAction()
     {
-        if (null === ($id = $this->_getParam('id'))) {
+        if (null === ($id = $this->_getParam('primary-key'))) {
             throw new \InvalidArgumentException("ID is not set.");
         }
 
@@ -180,13 +200,19 @@ abstract class Controller extends \Zend_Controller_Action
             $this->view->assign('form', $form);
             return $this->render('crud/delete', null, true); // confirm
         }
-        try {
-            $stmt = $this->_getWhereStatement($id);
-            $this->obj->delete($stmt);
-            $this->_helper->redirector('list');
-        } catch (\Zend_Exception $e) {
-            throw $e;
+        if ($this->_request->isPost() === true &&
+            $this->_request->getPost('confirm') == 'yes')
+        {
+            try {
+                $stmt = $this->_getWhereStatement($id);
+                $this->obj->delete($stmt);
+                return $this->_helper->redirector('list');
+            } catch (\Zend_Exception $e) {
+                throw $e;
+            }
         }
+        $this->view->assign('form', $form);
+        return $this->render('crud/delete', null, true);
     }
 
     /**
@@ -206,13 +232,10 @@ abstract class Controller extends \Zend_Controller_Action
      */
     public function readAction()
     {
-        $pkey = $this->primaryKey[0];
-
-        if (null === ($id = $this->_getParam($pkey))) {
+        if (null === ($id = $this->_getParam('primary-key'))) {
             return $this->_helper->redirector('list');
         }
-
-        $record = $this->obj->find($id)->toArray();
+        $record = $this->getRecord($id);
         $this->view->assign('record', $record[0]);
         $this->view->assign('pkValue', $id);
         return $this->render('crud/detail', null, true);
@@ -279,6 +302,8 @@ abstract class Controller extends \Zend_Controller_Action
         $searchForm->columns->addMultiOptions($this->cols);
         $this->view->searchForm = $searchForm->setAction($this->view->url());
 
+        $this->view->bulkDelete = $this->bulkDelete;
+
         return $this->render('crud/list', null, true);
     }
 
@@ -291,10 +316,11 @@ abstract class Controller extends \Zend_Controller_Action
      */
     public function editAction()
     {
-        if (null === ($id = $this->_getParam('id'))) {
+        if (null === ($id = $this->_getParam('primary-key'))) {
             throw new \Runtime_Exception('invalid id');
         }
 
+        $record = $this->getRecord($id);
         $form = $this->_getForm();
 
         if ($this->_request->isPost()) {
@@ -304,7 +330,7 @@ abstract class Controller extends \Zend_Controller_Action
                 return;
             }
         }
-        $record = $this->obj->find($id)->toArray();
+        $record = $this->getRecord($id);
         $form->populate($record[0]);
         $this->view->assign('form', $form);
         $this->view->assign('pkValue', $id);
@@ -364,7 +390,6 @@ abstract class Controller extends \Zend_Controller_Action
      */
     private function _update($id, $data)
     {
-        $id = ((int) $id == $id) ? (int) $id : $id;
         try {
             $stmt = $this->_getWhereStatement($id);
             $this->obj->update($data, $stmt);
@@ -381,7 +406,7 @@ abstract class Controller extends \Zend_Controller_Action
      */
     private function _getForm()
     {
-        $form = new Edit();
+        $form = new Edit($this->primaryKey);
         $form->generate(
             $this->obj->info(\Zend_Db_Table_Abstract::METADATA)
         );
@@ -429,15 +454,21 @@ abstract class Controller extends \Zend_Controller_Action
     /**
      * _getWhereStatement
      *
-     * @param mixed $id
-     * @return string
+     * @param  mixed $id
+     * @return mixed (string/array)
      */
     private function _getWhereStatement($id)
     {
-        $id = ((int) $id == $id) ? (int) $id : $id;
-        $where = $this->obj->getAdapter()
-            ->quoteInto($this->primaryKey[0] . ' = ?', $id);
-
+        if (is_numeric($id)) {
+            $where = $this->obj->getAdapter()
+                ->quoteInto($this->primaryKey[0] . ' = ?', $id);
+        } else {
+            $id = unserialize($id);
+            foreach ($id as $key => $value) {
+                $where[] = $this->obj->getAdapter()
+                    ->quoteInto($key . ' = ?', $value);
+            }
+        }
         return $where;
     }
 
@@ -537,6 +568,44 @@ abstract class Controller extends \Zend_Controller_Action
                 'The model must extend Zend_Db_Table_Abstract'
             );
         }
+    }
+
+    /**
+     * Get Record out of primary-key
+     * (serialized array)
+     *
+     * @param  string $id Serialized id string
+     * @return Zend_Db_Table_Rowset_Abstract
+     */
+    protected function getRecord($id)
+    {
+        $primaryKey = unserialize($id);
+
+        $record = call_user_func_array(
+            array($this->obj, 'find'),
+            array_values($primaryKey)
+        )->toArray();
+
+        return $record;
+    }
+
+    /**
+     * Bulk Delete entries
+     *
+     * @param  array With serialized ids
+     * @return bool
+     */
+    protected function bulkDelete(array $bulkIds)
+    {
+        if (empty($bulkIds)) {
+            return false;
+        }
+        foreach ($bulkIds as $id) {
+            $primaryKey = urldecode($id);
+            $where      = $this->_getWhereStatement($primaryKey);
+            $this->obj->delete($where);
+        }
+        return true;
     }
 
 }

@@ -44,6 +44,7 @@ class Confirm extends \Zend_Form
     public function init()
     {
         $this->setMethod('post');
+        $this->setAttrib('class', 'form-horizontal');
 
         $confirm = new \Zend_Form_Element_Select('confirm');
         $confirm->setLabel('Please confirm')
@@ -56,10 +57,12 @@ class Confirm extends \Zend_Form
         $this->addElement(
             'submit', 'submit', array(
                 'ignore' => true,
-                'label'  => 'I confirm!',
-                'class'  => 'btn danger',
-            ) // FIXME: class doesn't work yet
+                'label'  => 'I confirm!'
+            )
         );
+
+        $elements = $this->getElements();
+        $this->addDisplayGroup($elements, 'edit', array('legend' => 'Delete Entry'));
 
         /**
          * @desc Apply Twitter Bootstrap to all elements.
@@ -70,6 +73,8 @@ class Confirm extends \Zend_Form
             'submit',
             'cancel'
         );
+
+        $this->getElement('submit')->setAttrib('class', 'btn btn-danger');
     }
 
 }

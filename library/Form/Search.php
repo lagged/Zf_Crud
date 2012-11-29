@@ -35,33 +35,10 @@ namespace Lagged\Zf\Crud\Form;
  */
 class Search extends \Zend_Form
 {
-
     /**
      * var Zend_Form_Element_Select $columns ''
      */
     public $columns;
-
-    /**
-     * var array $decorators
-     */
-    protected $decorators = array(
-        'ViewHelper',
-        'Errors',
-        'Description',
-        array('HtmlTag', array('tag' => 'span')),
-        array(
-            'Label',
-            array(
-                'tag' => 'span', 'class' =>'label', 'style' => 'float: none;')
-        ),
-        array(
-            array('row' => 'HtmlTag'),
-            array(
-                'tag' => 'span', 'class' => 'inline', 'style' => 'margin-left:10px;'
-            )
-        )
-    );
-
 
     /**
      * init
@@ -72,13 +49,14 @@ class Search extends \Zend_Form
     public function init()
     {
         $this->setMethod('post');
-        $this->setAttrib('id', 'search');
+        $this->setAttrib('id', 'searchForm');
+        $this->setAttrib('class', 'form-inline');
+        $this->setAttrib('style', 'margin: 0');
 
         $this->addElement(
             'text', 'search', array(
                 'label'      => 'Term',
                 'required'   => true,
-                'decorators' => $this->decorators,
                 /*
                 'validators' => array(
                     array(
@@ -91,23 +69,20 @@ class Search extends \Zend_Form
 
         $this->addElement(
             'checkbox', 'exact', array(
-                'label'      => 'exact',
-                'decorators' => $this->decorators
+                'label'      => 'exact'
             )
         );
 
         $this->columns = new \Zend_Form_Element_Select('columns');
         $this->columns->setLabel('into')->setRequired(true)
-            ->setRegisterInArrayValidator(false)
-            ->setDecorators($this->decorators);
+            ->setRegisterInArrayValidator(false);
 
         $this->addElement($this->columns);
 
         $this->addElement(
             'submit', 'submit', array(
                 'ignore'     => true,
-                'label'      => 'Search',
-                'decorators' => $this->decorators
+                'label'      => 'Search'
             )
         );
 
@@ -117,23 +92,19 @@ class Search extends \Zend_Form
             array('legend' => '')
         );
 
-        $this->getDisplayGroup('searchForm')->setDecorators(
-            array(
-                'FormElements',
-                'Fieldset',
-                array(
-                    'HtmlTag',
-                    array(
-                        'tag'   => 'div',
-                        'class' => 'well',
-                        'style' => 'float:right; padding: 0 20px;'
-                    )
-                )
-            )
+        \EasyBib_Form_Decorator::setFormDecorator(
+            $this,
+            \EasyBib_Form_Decorator::BOOTSTRAP_MINIMAL,
+            'submit',
+            'cancel'
         );
 
-        $submit = $this->getElement('submit')->removeDecorator('Label')
-            ->setAttrib('class', 'primary');
+        $this->getElement('submit')->setAttrib('class', 'btn btn-primary btn-mini');
+        $this->getElement('search')->setAttrib('style', 'margin-right: 10px; width: auto;');
+        $this->getElement('search')->setAttrib('class', 'input-medium');
+        $this->getElement('exact')->setAttrib('style', 'margin: -2px 10px 0 0;');
+        $this->getElement('columns')->setAttrib('class', 'input-medium');
+        $this->getElement('columns')->setAttrib('style', 'margin-right: 10px;');
 
     }
 

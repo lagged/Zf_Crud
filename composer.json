@@ -32,6 +32,6 @@
     ],
     "require-dev": {
         "zendframework/zendframework": "1.11.11",
-        "pear-easybib/EasyBib_Form_Decorator": "0.2.0"
+        "pear-easybib/EasyBib_Form_Decorator": "0.3.2"
     }
 }

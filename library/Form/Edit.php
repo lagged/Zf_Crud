@@ -36,13 +36,13 @@ namespace Lagged\Zf\Crud\Form;
 class Edit extends \Zend_Form
 {
     /**
-     * init
-     *
-     * @return void
+     * @var mixed (array|null)
      */
-    public function init()
+    protected $primaryKeys;
+
+    public function __construct($primaryKeys)
     {
-        $this->setMethod('post');
+        $this->primaryKeys = $primaryKeys;
     }
 
     /**
@@ -57,7 +57,9 @@ class Edit extends \Zend_Form
     public function generate(array $cols)
     {
         foreach ($cols as $col) {
-            if (! $col['PRIMARY']) {
+            if (count($this->primaryKeys) > 1) {
+                $this->_createElement($col);
+            } else if (count($this->primaryKeys) == 1 && !$col['PRIMARY']) {
                 $this->_createElement($col);
             }
         }
@@ -69,9 +71,13 @@ class Edit extends \Zend_Form
             )
         );
 
-        /**
-         * @desc Apply Twitter Bootstrap to all elements.
-         */
+        $elements = $this->getElements();
+        $this->addDisplayGroup($elements, 'edit', array('legend' => 'Edit Entry'));
+
+
+        $this->setAttrib('class', 'form-horizontal');
+        $this->setMethod('post');
+
         \EasyBib_Form_Decorator::setFormDecorator(
             $this,
             \EasyBib_Form_Decorator::BOOTSTRAP,
