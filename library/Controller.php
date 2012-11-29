@@ -119,10 +119,6 @@ abstract class Controller extends \Zend_Controller_Action
 
         $this->_initSession();
 
-        $this->view->headLink()->appendStylesheet(
-            'http://twitter.github.com/bootstrap/assets/css/bootstrap-1.2.0.min.css'
-        );
-
         $this->view->assign('ui_title', $this->title);
 
         $this->view->addScriptPath(dirname(__DIR__) . '/views/scripts/');
