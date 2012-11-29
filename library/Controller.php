@@ -100,6 +100,11 @@ abstract class Controller extends \Zend_Controller_Action
      */
     protected $bulkDelete = false;
 
+    /**
+     * @var bool $bootstrapIntegration Add Bootstrap css from twitter
+     */
+    protected $bootstrapIntegration = false;
+
 
     /**
      * Init
@@ -119,9 +124,11 @@ abstract class Controller extends \Zend_Controller_Action
 
         $this->_initSession();
 
-        $this->view->headLink()->appendStylesheet(
-            'http://twitter.github.com/bootstrap/assets/css/bootstrap-1.2.0.min.css'
-        );
+        if (true === $this->bootstrapIntegration) {
+            $this->view->headLink()->appendStylesheet(
+                'http://twitter.github.com/bootstrap/assets/css/bootstrap.css'
+            );
+        }
 
         $this->view->assign('ui_title', $this->title);
 
