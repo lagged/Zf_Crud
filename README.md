@@ -12,9 +12,8 @@ WORK IN PROGRESS
  
  [twitter bootstrap]: https://github.com/twitter/bootstrap/tags
 
- Use your own bootstrap css files or enable $bootstrapIntegration = true within setup.
- It will include http://twitter.github.com/bootstrap/assets/css/bootstrap.css then.
- But we cannot guarantee, that this version will match with the version we use (2.2.1).
+ Use your own bootstrap css files within your setup.
+ See twitter bootstrap homepage (tags) for versions.
 
 ### Installation
 
@@ -34,6 +33,5 @@ Add `lagged/Zf_Crud` to your `composer.json`!
         protected $dbAdapter  = 'db';
         protected $count      = 15;
         protected $bulkDelete = true;
-        protected $bootstrapIntegration = true;
     }
 
