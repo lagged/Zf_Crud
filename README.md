@@ -12,6 +12,9 @@ WORK IN PROGRESS
  
  [twitter bootstrap]: https://github.com/twitter/bootstrap/tags
 
+ Use your own bootstrap css files within your setup.
+ See twitter bootstrap homepage (tags) for versions.
+
 ### Installation
 
 Add `lagged/Zf_Crud` to your `composer.json`!
@@ -28,7 +31,7 @@ Add `lagged/Zf_Crud` to your `composer.json`!
         protected $title      = 'My Interface';
         // Optional
         protected $dbAdapter  = 'db';
-    	protected $count      = 15;
-    	protected $bulkDelete = false;
+        protected $count      = 15;
+        protected $bulkDelete = true;
     }
 
