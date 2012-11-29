@@ -1,22 +1,54 @@
 {
-    "hash": "099be4dce05766217ffab5ae7c6e4748",
+    "hash": "8ef3b301069a13ceba83de1b90836b45",
     "packages": [
 
     ],
     "packages-dev": [
         {
-            "package": "pear-easybib/EasyBib_Form_Decorator",
-            "version": "0.2.0"
+            "name": "pear-easybib.github.com/pear/EasyBib_Form_Decorator",
+            "version": "0.3.2",
+            "dist": {
+                "type": "file",
+                "url": "http://easybib.github.com/pear/get/EasyBib_Form_Decorator-0.3.2.tgz",
+                "reference": null,
+                "shasum": null
+            },
+            "require": {
+                "php": ">=5.2.0.0",
+                "ext-spl": "*"
+            },
+            "replace": {
+                "pear-easybib/easybib_form_decorator": "== 0.3.2.0"
+            },
+            "type": "pear-library",
+            "installation-source": "dist",
+            "autoload": {
+                "classmap": [
+                    ""
+                ]
+            },
+            "include-path": [
+                "/"
+            ],
+            "description": "EasyBib_Form Decorator supports four modes: \n * Table \n * Div \n * Twitter Bootstrap \n\n * Twitter Bootstrap Minimal \n\nThe default is Twitter Bootstrap."
         },
         {
-            "package": "zendframework/zendframework",
-            "version": "1.11.11"
+            "name": "zendframework/zendframework",
+            "version": "1.11.11",
+            "dist": {
+                "type": "zip",
+                "url": "http://framework.zend.com/releases/ZendFramework-1.11.11/ZendFramework-1.11.11-minimal.zip",
+                "reference": null,
+                "shasum": null
+            },
+            "type": "library",
+            "installation-source": "dist"
         }
     ],
     "aliases": [
 
     ],
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "stability-flags": [
 
     ]

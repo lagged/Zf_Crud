@@ -3,45 +3,72 @@
         <h1><?php echo $this->ui_title; ?></h1>
     </div>
     <p class="new">
-        <a href="<?php echo $this->BetterUrl(array('action' => 'create')); ?>" class="btn small">Add new entry</a> -
-        <a href="<?php echo $this->BetterUrl(array('action' => 'list')); ?>?reset=1" class="btn small">Show all</a>
+        <a href="<?php echo $this->BetterUrl(array('action' => 'create')); ?>" class="btn small">
+            Add new entry
+        </a>
+        <a href="<?php echo $this->BetterUrl(array('action' => 'list')); ?>?reset=1" class="btn small">
+            Show all
+        </a>
     </p>
-    <table class="table zebra-striped">
+
+    <form action="<?php echo $this->BetterUrl(array('action' => 'bulk')); ?>" method="post">
+    <table class="table table.striped">
     <thead>
         <tr>
 <?php foreach ($this->cols as $column): ?>
             <th><a href="<?php $ot = ($column == $this->order) ? $this->otNew : 'ASC'; echo $this->url(array_merge($this->urlParams, array('o' => $column, 'ot' => $ot))); ?>"><?php echo $column; ?></a></th>
 <?php endforeach; ?>
             <th>actions</th>
+<?php if (!empty($this->bulkDelete)): ?>
+            <th>delete</th>
+<?php endif; ?>
         </tr>
     </thead>
     <tbody>
 <?php foreach ($this->paginator as $row): ?>
         <tr>
-<?php $_primary = null; ?>
+<?php $_primary = array(); ?>
 <?php foreach ($row as $col => $val): ?>
+
     <?php
-    if ($col == $this->primary[0]) {
-        $_primary = $val;
+    if (in_array($col, $this->primary)) {
+        $_primary[$col] = $val;
     }
     ?>
     <?php if (in_array($col, $this->cols)): ?>
             <td class="data-<?php echo $col; ?>"><?php echo $val; ?></td>
     <?php endif; ?>
 <?php endforeach; ?>
-            <td>
-                <a href="<?php echo $this->BetterUrl(array('action' => 'read', $this->primary[0] => $_primary)); ?>">Detail</a>
+            <td style="width: 60px;">
+                <a class="btn btn-inverse btn-mini" href="<?php echo $this->BetterUrl(array('action' => 'read', 'primary-key' => serialize($_primary))); ?>">
+                    Detail
+                </a>
             </td>
+<?php if (!empty($this->bulkDelete)): ?>
+            <td style="text-align: center; width: 45px;">
+                <input type="checkbox" value="<?php echo urlencode(serialize($_primary)); ?>" name="bulk[]" />
+            </td>
+<?php endif; ?>
         </tr>
 <?php endforeach; ?>
     </tbody>
     </table>
+
+<?php if (!empty($this->bulkDelete)): ?>
+        <button type="submit" class="btn btn-danger" style="float: right; margin: 5px 20px 0 0;">
+            Bulk Delete selected Entries
+        </button>
+<?php endif; ?>
+    </form>
+
 <?php
      echo $this->paginationControl(
             $this->paginator, 'Sliding', 'crud/pagination_control.phtml', $this->urlParams
-     ); ?>
-    <span class="forms">
-        <?php echo $this->jumpForm; ?>
-        <?php echo $this->searchForm; ?>
-    </span>
+     );
+?>
+
+    <div class="row">
+        <div class="span3 well"><?php echo $this->jumpForm; ?></div>
+        <div class="span7 well"><?php echo $this->searchForm; ?></div>
+    </div>
 </div>
