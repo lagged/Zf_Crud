@@ -13,6 +13,9 @@
             "homepage": "https://github.com/gusano"
         }
     ],
+    "autoload": {
+        "classmap": ["library"]
+    },
     "repositories": [
         {
             "type": "package",
@@ -28,7 +31,7 @@
         {
             "type": "pear",
             "url": "http://easybib.github.com/pear"
-        }    
+        }
     ],
     "require-dev": {
         "zendframework/zendframework": "1.11.11",
