@@ -1,6 +1,6 @@
 <?php if ($this->pageCount): ?>
-<div class="pagination">
-<ul>
+<div class="row well">
+<ul class="pagination">
 <?php if (isset($this->previous)): ?>
   <li><a href="<?php echo $this->url(array_merge($this->params, array('p' => $this->first))); ?>">
      &lt;&lt; First
@@ -35,6 +35,6 @@
   <li class="disabled"><a href="#">Last &gt;&gt;</a></li>
 <?php endif; ?>
   </ul>
-  <h5>&nbsp;&nbsp;Page <?php echo $this->current; ?> of <?php echo $this->last; ?></h5>
+  <span class="label label-info pull-right">Page <?php echo $this->current; ?> of <?php echo $this->last; ?></span>
 </div>
 <?php endif; ?>
