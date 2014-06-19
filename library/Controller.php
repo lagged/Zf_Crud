@@ -297,6 +297,9 @@ abstract class Controller extends \Zend_Controller_Action
 
         $searchForm->columns->addMultiOptions($this->cols);
         $this->view->searchForm = $searchForm->setAction($this->view->url());
+        if ($this->session->searchFormState) {
+            $this->view->searchForm->populate($this->session->searchFormState);
+        }
 
         $this->view->bulkDelete = $this->bulkDelete;
 
@@ -516,6 +519,7 @@ abstract class Controller extends \Zend_Controller_Action
             : sprintf("%s LIKE '%%%s%%'", $column, $search);
         $this->where = $query;
         $this->session->query = $query;
+        $this->session->searchFormState = $data;
     }
 
     /**
@@ -543,6 +547,7 @@ abstract class Controller extends \Zend_Controller_Action
             && (null !== ($reset = $this->_getParam('reset')))
         ) {
             $this->session->query = null;
+            $this->session->searchFormState = null;
         }
     }
 
