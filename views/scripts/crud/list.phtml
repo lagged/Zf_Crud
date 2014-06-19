@@ -16,7 +16,21 @@
     <thead>
         <tr>
 <?php foreach ($this->cols as $column): ?>
-            <th><a href="<?php $ot = ($column == $this->order) ? $this->otNew : 'ASC'; echo $this->url(array_merge($this->urlParams, array('o' => $column, 'ot' => $ot))); ?>"><?php echo $column; ?></a></th>
+    <?php
+        $ordered = ($column == $this->order);
+        $order = $ordered ? $this->otNew : 'ASC';
+        $link = $this->url(array_merge($this->urlParams, array('o' => $column, 'ot' => $order)));
+    ?>
+    <?php if ($ordered): ?>
+            <th>
+                <a href="<?php echo $link; ?>"><?php echo $column; ?></a>
+                <span class="<?php echo ($order === 'ASC') ? 'glyphicon glyphicon-arrow-up' : 'glyphicon glyphicon-arrow-down'; ?>"></span>
+            </th>
+    <?php else: ?>
+            <th><a href="<?php echo $link ?>"><?php echo $column; ?></a></th>
+
+    <?php endif; ?>
+
 <?php endforeach; ?>
             <th>actions</th>
 <?php if (!empty($this->bulkDelete)): ?>
