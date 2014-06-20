@@ -8,7 +8,7 @@ WORK IN PROGRESS
 
 [deco]: https://github.com/easybib/EasyBib_Form_Decorator#readme
 
- * [Twitter Bootstrap][twitter bootstrap] (used version: 2.2.1)
+ * [Twitter Bootstrap][twitter bootstrap] (version 3)
  
  [twitter bootstrap]: https://github.com/twitter/bootstrap/tags
 

@@ -2,21 +2,36 @@
     <div class="page-header-off">
         <h1><?php echo $this->ui_title; ?></h1>
     </div>
-    <p class="new">
-        <a href="<?php echo $this->BetterUrl(array('action' => 'create')); ?>" class="btn small">
+    <div class="row well">
+        <a href="<?php echo $this->BetterUrl(array('action' => 'create')); ?>" class="btn btn-success small">
             Add new entry
         </a>
-        <a href="<?php echo $this->BetterUrl(array('action' => 'list')); ?>?reset=1" class="btn small">
+        <a href="<?php echo $this->BetterUrl(array('action' => 'list')); ?>?reset=1" class="btn btn-info small">
             Show all
         </a>
-    </p>
+        <div class="pull-right"><?php echo $this->searchForm; ?></div>
+    </div>
 
     <form action="<?php echo $this->BetterUrl(array('action' => 'bulk')); ?>" method="post">
-    <table class="table table.striped">
+    <table class="table table-striped">
     <thead>
         <tr>
 <?php foreach ($this->cols as $column): ?>
-            <th><a href="<?php $ot = ($column == $this->order) ? $this->otNew : 'ASC'; echo $this->url(array_merge($this->urlParams, array('o' => $column, 'ot' => $ot))); ?>"><?php echo $column; ?></a></th>
+    <?php
+        $ordered = ($column == $this->order);
+        $order = $ordered ? $this->otNew : 'ASC';
+        $link = $this->url(array_merge($this->urlParams, array('o' => $column, 'ot' => $order)));
+    ?>
+    <?php if ($ordered): ?>
+            <th>
+                <a href="<?php echo $link; ?>"><?php echo $column; ?></a>
+                <span class="<?php echo ($order === 'ASC') ? 'glyphicon glyphicon-arrow-up' : 'glyphicon glyphicon-arrow-down'; ?>"></span>
+            </th>
+    <?php else: ?>
+            <th><a href="<?php echo $link ?>"><?php echo $column; ?></a></th>
+
+    <?php endif; ?>
+
 <?php endforeach; ?>
             <th>actions</th>
 <?php if (!empty($this->bulkDelete)): ?>
@@ -40,7 +55,7 @@
     <?php endif; ?>
 <?php endforeach; ?>
             <td style="width: 60px;">
-                <a class="btn btn-inverse btn-mini" href="<?php echo $this->BetterUrl(array('action' => 'read', 'primary-key' => serialize($_primary))); ?>">
+                <a class="btn btn-default btn-xs" href="<?php echo $this->BetterUrl(array('action' => 'read', 'primary-key' => serialize($_primary))); ?>">
                     Detail
                 </a>
             </td>
@@ -68,7 +83,6 @@
 ?>
 
     <div class="row">
-        <div class="span3 well"><?php echo $this->jumpForm; ?></div>
-        <div class="span7 well"><?php echo $this->searchForm; ?></div>
+        <div class="well"><?php echo $this->jumpForm; ?></div>
     </div>
 </div>
