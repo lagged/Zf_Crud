@@ -100,7 +100,11 @@ abstract class Controller extends \Zend_Controller_Action
      */
     protected $bulkDelete = false;
 
-
+    /**
+     * @var $columns to show
+     */
+    protected $availableColumns = array();
+    
     /**
      * Init
      *
@@ -123,14 +127,20 @@ abstract class Controller extends \Zend_Controller_Action
 
         $this->view->addScriptPath(dirname(__DIR__) . '/views/scripts/');
         $this->view->addHelperPath(dirname(__DIR__) . '/views/helpers/', 'Crud_View_Helper');
-
-        $this->cols = array_diff(
-            array_keys($this->obj->info(\Zend_Db_Table_Abstract::METADATA)),
-            $this->hidden
-        );
-
-        $this->primaryKey = array_values($this->obj->info('primary')); // composite?
-
+        
+        if (!empty($this->availableColumns)) {
+            $this->cols = $this->availableColumns;
+        } else {
+            $this->cols = array_diff(
+                array_keys($this->obj->info(\Zend_Db_Table_Abstract::METADATA)),
+                $this->hidden
+            );
+        }
+        
+        if (empty($this->primaryKey)) {
+            $this->primaryKey = array_values($this->obj->info('primary')); // composite?
+        }
+        
         $this->view->assign('cols', $this->cols);
         $this->view->assign('primary', $this->primaryKey);
 

@@ -103,7 +103,7 @@ class Edit extends \Zend_Form
         );
 
 
-        switch ($col['DATA_TYPE']) {
+        switch (strtolower($col['DATA_TYPE'])) {
         case 'int':
             $element = new \Zend_Form_Element_Text($col['COLUMN_NAME']);
             $element->setAttrib('size', $col['LENGTH'])
@@ -111,6 +111,9 @@ class Edit extends \Zend_Form
                 ->addValidator('Int');
 
             break;
+        case 'number':
+        case 'char':
+        case 'varchar2':
         case 'varchar':
             $element = new \Zend_Form_Element_Text($col['COLUMN_NAME']);
             if ($col['LENGTH']) {
