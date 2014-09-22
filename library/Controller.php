@@ -101,9 +101,24 @@ abstract class Controller extends \Zend_Controller_Action
     protected $bulkDelete = false;
 
     /**
-     * @var $columns to show
+     * @var array $columns to show
      */
     protected $availableColumns = array();
+    
+    /**
+     * @var Zend_Db::select $customSelect
+     */
+    protected $customSelect;
+    
+    /**
+     * @var array $enumList
+     */
+    protected $enumList;
+    
+    /**
+     * @var array $defaultValues
+     */
+    protected $defaultValue;
     
     /**
      * Init
@@ -269,15 +284,19 @@ abstract class Controller extends \Zend_Controller_Action
         $orderType = $this->_getParam('ot');
 
         $searchForm = new Search();
-        $searchForm->columns->addMultiOptions($this->cols);
-
+        if (!empty($this->availableColumns)) {
+            $searchForm->columns->addMultiOptions(array_flip($this->cols));
+        } else {
+            $searchForm->columns->addMultiOptions($this->cols);
+        }
+        
         if ($this->_request->isPost()) {
             if ($searchForm->isValid($this->_request->getPost())) {
                 $data = $searchForm->getValues();
                 $this->_assignSearchWhereQuery($data);
             }
         }
-
+        
         if (isset($order) && isset($orderType)) {
             $this->_assignOrderBy($order, $orderType);
         }
@@ -305,7 +324,6 @@ abstract class Controller extends \Zend_Controller_Action
         $jumpForm = new JumpTo();
         $this->view->jumpForm = $jumpForm->setAction($url);
 
-        $searchForm->columns->addMultiOptions($this->cols);
         $this->view->searchForm = $searchForm->setAction($this->view->url());
         if ($this->session->searchFormState) {
             $this->view->searchForm->populate($this->session->searchFormState);
@@ -415,10 +433,29 @@ abstract class Controller extends \Zend_Controller_Action
      */
     private function _getForm()
     {
+        if (!empty($this->availableColumns)) {
+            $infoDb = array_map('strtolower', $this->availableColumns);
+            foreach ($infoDb as $description => $field) {
+                $columns [$field] = $this->obj->info(\Zend_Db_Table_Abstract::METADATA)[$field];
+                $columns [$field]['DESCRIPTION'] = $description;
+                
+                if (!empty($this->enumList[strtoupper($field)])) {
+                    $columns [$field]['DATA_TYPE'] = 'ENUM';
+                    $columns [$field]['DATA_LIST'] = $this->enumList[strtoupper($field)];
+                }
+                if (!empty($this->defaultValue[strtoupper($field)])) {
+                    $columns [$field]['DEFAULT_VALUE'] = $this->defaultValue[strtoupper($field)];
+                }
+            }
+        } else {
+            $columns = $this->obj->info(\Zend_Db_Table_Abstract::METADATA);
+        }
+ 
         $form = new Edit($this->primaryKey);
         $form->generate(
-            $this->obj->info(\Zend_Db_Table_Abstract::METADATA)
+            $columns
         );
+        
         return $form;
     }
 
@@ -435,17 +472,22 @@ abstract class Controller extends \Zend_Controller_Action
     {
         $db        = \Zend_Registry::get($this->dbAdapter);
         $table     = $this->obj->info('name');
-        $select    = $db->select()->from($table);
+        
+        if (empty($this->customSelect)) {
+            $select    = $db->select()->from($table);
 
-        if ($this->where) {
-            $select->where($this->where);
-        } else if (isset($this->session->query)) {
-            $select->where($this->session->query);
+            if ($this->where) {
+                $select->where($this->where);
+            } else if (isset($this->session->query)) {
+                $select->where($this->session->query);
+            }
+            if ($this->order && $this->orderType) {
+                $select->order($this->order . ' ' . $this->orderType);
+            }
+        } else {
+            $select = $this->customSelect;
         }
-        if ($this->order && $this->orderType) {
-            $select->order($this->order . ' ' . $this->orderType);
-        }
-
+        
         $paginator = \Zend_Paginator::factory($select);
         $paginator->setItemCountPerPage($this->count);
 
