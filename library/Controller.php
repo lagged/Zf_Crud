@@ -271,6 +271,7 @@ abstract class Controller extends \Zend_Controller_Action
      */
     public function listAction()
     {
+        $time1 = microtime(true);
         $this->_checkSession($this->_request);
         if (null !== ($table = $this->_getParam('table'))) {
             $this->tableName = $table;
@@ -289,7 +290,8 @@ abstract class Controller extends \Zend_Controller_Action
         } else {
             $searchForm->columns->addMultiOptions($this->cols);
         }
-        
+        $time2 = microtime(true);
+        error_log('LINE : ' . __LINE__  . ' TIME => ' . ($time2 - $time1));
         if ($this->_request->isPost()) {
             if ($searchForm->isValid($this->_request->getPost())) {
                 $data = $searchForm->getValues();
@@ -300,17 +302,16 @@ abstract class Controller extends \Zend_Controller_Action
         if (isset($order) && isset($orderType)) {
             $this->_assignOrderBy($order, $orderType);
         }
-
+        
         $paginator = $this->_getPaginator();
         $paginator->setCurrentPageNumber($page);
-
+        
         $this->view->paginator = $paginator;
-
         if ($this->order) {
             $this->view->order = $this->order;
         }
         $this->view->otNew = $this->_getNextOrderType($this->orderType);
-
+        
         $query = $this->_request->getQuery();
         $this->view->assign('urlParams', array('params' => $query));
 
@@ -320,7 +321,7 @@ abstract class Controller extends \Zend_Controller_Action
             $url['ot'] = $this->orderType;
         }
         $url = $this->view->BetterUrl($url);
-
+        
         $jumpForm = new JumpTo();
         $this->view->jumpForm = $jumpForm->setAction($url);
 
@@ -328,9 +329,8 @@ abstract class Controller extends \Zend_Controller_Action
         if ($this->session->searchFormState) {
             $this->view->searchForm->populate($this->session->searchFormState);
         }
-
         $this->view->bulkDelete = $this->bulkDelete;
-
+        
         return $this->render('crud/list', null, true);
     }
 
@@ -469,11 +469,10 @@ abstract class Controller extends \Zend_Controller_Action
      * @uses   self::$obj
      */
     private function _getPaginator()
-    {
-        $db        = \Zend_Registry::get($this->dbAdapter);
-        $table     = $this->obj->info('name');
-        
+    {   
         if (empty($this->customSelect)) {
+            $db        = \Zend_Registry::get($this->dbAdapter);
+            $table     = $this->obj->info('name');
             $select    = $db->select()->from($table);
 
             if ($this->where) {
@@ -632,13 +631,23 @@ abstract class Controller extends \Zend_Controller_Action
      */
     protected function getRecord($id)
     {
-        $primaryKey = unserialize($id);
-
-        $record = call_user_func_array(
-            array($this->obj, 'find'),
-            array_values($primaryKey)
-        )->toArray();
-
+       // if (empty($this->customSelect)) {
+            $primaryKey = unserialize($id);
+            $record = call_user_func_array(
+                array($this->obj, 'find'),
+                array_values($primaryKey)
+            )->toArray();
+        /*} else {
+            $primaryKey = unserialize($id);
+            $db = \Zend_Registry::get($this->dbAdapter);
+            $select = $this->customSelect;
+            foreach ($primaryKey as $key => $value) {
+                $select->where($key . ' = ?', trim($value));
+            }
+            var_dump($db->fetchRow($select));
+            exit;
+        }*/
+        
         return $record;
     }
 

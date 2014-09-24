@@ -102,7 +102,6 @@ class Edit extends \Zend_Form
             array('format' => 'yyyy-MM-dd HH:ii:ss')
         );
 
-
         switch (strtolower($col['DATA_TYPE'])) {
         case 'int':
             $element = new \Zend_Form_Element_Text($col['COLUMN_NAME']);
