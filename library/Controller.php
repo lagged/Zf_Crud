@@ -100,7 +100,26 @@ abstract class Controller extends \Zend_Controller_Action
      */
     protected $bulkDelete = false;
 
-
+    /**
+     * @var array $columns to show
+     */
+    protected $availableColumns = array();
+    
+    /**
+     * @var Zend_Db::select $customSelect
+     */
+    protected $customSelect;
+    
+    /**
+     * @var array $enumList
+     */
+    protected $enumList;
+    
+    /**
+     * @var array $defaultValues
+     */
+    protected $defaultValue;
+    
     /**
      * Init
      *
@@ -123,14 +142,20 @@ abstract class Controller extends \Zend_Controller_Action
 
         $this->view->addScriptPath(dirname(__DIR__) . '/views/scripts/');
         $this->view->addHelperPath(dirname(__DIR__) . '/views/helpers/', 'Crud_View_Helper');
-
-        $this->cols = array_diff(
-            array_keys($this->obj->info(\Zend_Db_Table_Abstract::METADATA)),
-            $this->hidden
-        );
-
-        $this->primaryKey = array_values($this->obj->info('primary')); // composite?
-
+        
+        if (!empty($this->availableColumns)) {
+            $this->cols = $this->availableColumns;
+        } else {
+            $this->cols = array_diff(
+                array_keys($this->obj->info(\Zend_Db_Table_Abstract::METADATA)),
+                $this->hidden
+            );
+        }
+        
+        if (empty($this->primaryKey)) {
+            $this->primaryKey = array_values($this->obj->info('primary')); // composite?
+        }
+        
         $this->view->assign('cols', $this->cols);
         $this->view->assign('primary', $this->primaryKey);
 
@@ -246,6 +271,7 @@ abstract class Controller extends \Zend_Controller_Action
      */
     public function listAction()
     {
+        $time1 = microtime(true);
         $this->_checkSession($this->_request);
         if (null !== ($table = $this->_getParam('table'))) {
             $this->tableName = $table;
@@ -259,29 +285,33 @@ abstract class Controller extends \Zend_Controller_Action
         $orderType = $this->_getParam('ot');
 
         $searchForm = new Search();
-        $searchForm->columns->addMultiOptions($this->cols);
-
+        if (!empty($this->availableColumns)) {
+            $searchForm->columns->addMultiOptions(array_flip($this->cols));
+        } else {
+            $searchForm->columns->addMultiOptions($this->cols);
+        }
+        $time2 = microtime(true);
+        error_log('LINE : ' . __LINE__  . ' TIME => ' . ($time2 - $time1));
         if ($this->_request->isPost()) {
             if ($searchForm->isValid($this->_request->getPost())) {
                 $data = $searchForm->getValues();
                 $this->_assignSearchWhereQuery($data);
             }
         }
-
+        
         if (isset($order) && isset($orderType)) {
             $this->_assignOrderBy($order, $orderType);
         }
-
+        
         $paginator = $this->_getPaginator();
         $paginator->setCurrentPageNumber($page);
-
+        
         $this->view->paginator = $paginator;
-
         if ($this->order) {
             $this->view->order = $this->order;
         }
         $this->view->otNew = $this->_getNextOrderType($this->orderType);
-
+        
         $query = $this->_request->getQuery();
         $this->view->assign('urlParams', array('params' => $query));
 
@@ -291,18 +321,16 @@ abstract class Controller extends \Zend_Controller_Action
             $url['ot'] = $this->orderType;
         }
         $url = $this->view->BetterUrl($url);
-
+        
         $jumpForm = new JumpTo();
         $this->view->jumpForm = $jumpForm->setAction($url);
 
-        $searchForm->columns->addMultiOptions($this->cols);
         $this->view->searchForm = $searchForm->setAction($this->view->url());
         if ($this->session->searchFormState) {
             $this->view->searchForm->populate($this->session->searchFormState);
         }
-
         $this->view->bulkDelete = $this->bulkDelete;
-
+        
         return $this->render('crud/list', null, true);
     }
 
@@ -405,10 +433,29 @@ abstract class Controller extends \Zend_Controller_Action
      */
     private function _getForm()
     {
+        if (!empty($this->availableColumns)) {
+            $infoDb = array_map('strtolower', $this->availableColumns);
+            foreach ($infoDb as $description => $field) {
+                $columns [$field] = $this->obj->info(\Zend_Db_Table_Abstract::METADATA)[$field];
+                $columns [$field]['DESCRIPTION'] = $description;
+                
+                if (!empty($this->enumList[strtoupper($field)])) {
+                    $columns [$field]['DATA_TYPE'] = 'ENUM';
+                    $columns [$field]['DATA_LIST'] = $this->enumList[strtoupper($field)];
+                }
+                if (!empty($this->defaultValue[strtoupper($field)])) {
+                    $columns [$field]['DEFAULT_VALUE'] = $this->defaultValue[strtoupper($field)];
+                }
+            }
+        } else {
+            $columns = $this->obj->info(\Zend_Db_Table_Abstract::METADATA);
+        }
+ 
         $form = new Edit($this->primaryKey);
         $form->generate(
-            $this->obj->info(\Zend_Db_Table_Abstract::METADATA)
+            $columns
         );
+        
         return $form;
     }
 
@@ -422,20 +469,24 @@ abstract class Controller extends \Zend_Controller_Action
      * @uses   self::$obj
      */
     private function _getPaginator()
-    {
-        $db        = \Zend_Registry::get($this->dbAdapter);
-        $table     = $this->obj->info('name');
-        $select    = $db->select()->from($table);
+    {   
+        if (empty($this->customSelect)) {
+            $db        = \Zend_Registry::get($this->dbAdapter);
+            $table     = $this->obj->info('name');
+            $select    = $db->select()->from($table);
 
-        if ($this->where) {
-            $select->where($this->where);
-        } else if (isset($this->session->query)) {
-            $select->where($this->session->query);
+            if ($this->where) {
+                $select->where($this->where);
+            } else if (isset($this->session->query)) {
+                $select->where($this->session->query);
+            }
+            if ($this->order && $this->orderType) {
+                $select->order($this->order . ' ' . $this->orderType);
+            }
+        } else {
+            $select = $this->customSelect;
         }
-        if ($this->order && $this->orderType) {
-            $select->order($this->order . ' ' . $this->orderType);
-        }
-
+        
         $paginator = \Zend_Paginator::factory($select);
         $paginator->setItemCountPerPage($this->count);
 
@@ -580,13 +631,23 @@ abstract class Controller extends \Zend_Controller_Action
      */
     protected function getRecord($id)
     {
-        $primaryKey = unserialize($id);
-
-        $record = call_user_func_array(
-            array($this->obj, 'find'),
-            array_values($primaryKey)
-        )->toArray();
-
+       // if (empty($this->customSelect)) {
+            $primaryKey = unserialize($id);
+            $record = call_user_func_array(
+                array($this->obj, 'find'),
+                array_values($primaryKey)
+            )->toArray();
+        /*} else {
+            $primaryKey = unserialize($id);
+            $db = \Zend_Registry::get($this->dbAdapter);
+            $select = $this->customSelect;
+            foreach ($primaryKey as $key => $value) {
+                $select->where($key . ' = ?', trim($value));
+            }
+            var_dump($db->fetchRow($select));
+            exit;
+        }*/
+        
         return $record;
     }
 

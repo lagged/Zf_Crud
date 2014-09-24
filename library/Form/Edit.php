@@ -59,7 +59,7 @@ class Edit extends \Zend_Form
         foreach ($cols as $col) {
             if (count($this->primaryKeys) > 1) {
                 $this->_createElement($col);
-            } else if (count($this->primaryKeys) == 1 && !$col['PRIMARY']) {
+            } else if (count($this->primaryKeys) == 1) {
                 $this->_createElement($col);
             }
         }
@@ -102,15 +102,17 @@ class Edit extends \Zend_Form
             array('format' => 'yyyy-MM-dd HH:ii:ss')
         );
 
-
-        switch ($col['DATA_TYPE']) {
+        switch (strtolower($col['DATA_TYPE'])) {
         case 'int':
             $element = new \Zend_Form_Element_Text($col['COLUMN_NAME']);
             $element->setAttrib('size', $col['LENGTH'])
                 ->setAttrib('maxlength', $col['LENGTH'])
                 ->addValidator('Int');
-
+            
             break;
+        case 'number':
+        case 'char':
+        case 'varchar2':
         case 'varchar':
             $element = new \Zend_Form_Element_Text($col['COLUMN_NAME']);
             if ($col['LENGTH']) {
@@ -121,6 +123,7 @@ class Edit extends \Zend_Form
         case 'date':
             $element = new \Zend_Form_Element_Text($col['COLUMN_NAME']);
             $element->setAttrib('size', 10)->setAttrib('maxlength', 10)
+                    ->setAttrib('type', 'date')
                 ->addValidator('Date');
             break;
         case 'datetime':
@@ -148,7 +151,17 @@ class Edit extends \Zend_Form
         default:
             throw new \Zend_Exception($col['DATA_TYPE'] . ' is not implemented');
         }
-        $element->setLabel($col['COLUMN_NAME']);
+        
+        if (!empty($col['DESCRIPTION'])) {
+            $element->setLabel($col['DESCRIPTION'] . ' :');
+        } else {
+            $element->setLabel($col['COLUMN_NAME']);
+        }
+        
+        if (!empty($col['DEFAULT_VALUE'])) {
+            $element->setValue($col['DEFAULT_VALUE']);
+        }
+        
         $element->setRequired(! $col['NULLABLE']);
 
         $this->addElement($element);
